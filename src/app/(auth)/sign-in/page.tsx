@@ -7,7 +7,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { signInAction } from "@/lib/actions/users";
 import { cn } from "@/lib/utils";
+import { Loader2 } from "lucide-react";
 import Link from "next/link";
+import { useActionState } from "react";
 import { useFormState, useFormStatus } from "react-dom";
 
 export default function SignInPage() {
@@ -73,28 +75,46 @@ export default function SignInPage() {
 }
 
 export function UserAuthForm() {
-	const [state, formAction] = useFormState(signInAction, {
+	const [state, formAction, pending] = useActionState(signInAction, {
 		error: "",
 	});
 
 	return (
-		<main className="mx-auto my-4 max-w-lg bg-popover p-10">
-			<h1 className="text-center font-bold text-2xl">
-				Sign in to your account
-			</h1>
+		<main className="grid gap-6">
 			<AuthFormError state={state} />
 			<form action={formAction}>
-				<Label htmlFor="email" className="text-muted-foreground">
-					Email
-				</Label>
-				<Input name="email" id="email" type="email" required />
-				<br />
-				<Label htmlFor="password" className="text-muted-foreground">
-					Password
-				</Label>
-				<Input type="password" name="password" id="password" required />
-				<br />
-				<SubmitButton />
+				<div className="grid gap-2">
+					<div className="grid gap-1">
+						<Label htmlFor="email" className="text-muted-foreground">
+							Email
+						</Label>
+						<Input
+							name="email"
+							id="email"
+							placeholder="name@example.com"
+							type="email"
+							autoCapitalize="none"
+							autoComplete="email"
+							autoCorrect="off"
+							disabled={pending}
+						/>
+						<br />
+						<Label htmlFor="password" className="text-muted-foreground">
+							Password
+						</Label>
+						<Input
+							name="password"
+							id="password"
+							type="password"
+							required
+							disabled={pending}
+						/>
+					</div>
+					<Button disabled={pending}>
+						{pending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+						Sign{pending ? "ing" : ""} in
+					</Button>
+				</div>
 			</form>
 			<div className="mt-4 text-center text-muted-foreground text-sm">
 				Don&apos;t have an account yet?{" "}
@@ -108,12 +128,3 @@ export function UserAuthForm() {
 		</main>
 	);
 }
-
-const SubmitButton = () => {
-	const { pending } = useFormStatus();
-	return (
-		<Button className="w-full" type="submit" disabled={pending}>
-			Sign{pending ? "ing" : ""} in
-		</Button>
-	);
-};
