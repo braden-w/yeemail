@@ -33,6 +33,7 @@ export async function GET(request: Request): Promise<Response> {
 			code,
 			storedCodeVerifier,
 		);
+		const { accessToken, refreshToken, accessTokenExpiresAt, idToken } = tokens;
 		const googleUserResponse = await fetch(
 			"https://openidconnect.googleapis.com/v1/userinfo",
 			{
@@ -63,7 +64,12 @@ export async function GET(request: Request): Promise<Response> {
 		});
 
 		if (existingUser) {
-			const session = await lucia.createSession(existingUser.id, {});
+			const session = await lucia.createSession(existingUser.id, {
+				google_access_token: accessToken,
+				google_refresh_token: refreshToken,
+				google_access_token_expires_at: accessTokenExpiresAt.toISOString(),
+				google_id_token: idToken,
+			});
 			const sessionCookie = lucia.createSessionCookie(session.id);
 			cookies().set(
 				sessionCookie.name,

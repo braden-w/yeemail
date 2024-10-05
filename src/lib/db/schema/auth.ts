@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { pgTable, timestamp, text } from "drizzle-orm/pg-core";
+import { pgTable, timestamp, text, integer } from "drizzle-orm/pg-core";
 
 export const users = pgTable("user", {
 	id: text("id").primaryKey(),
@@ -18,6 +18,12 @@ export const sessions = pgTable("session", {
 		withTimezone: true,
 		mode: "date",
 	}).notNull(),
+	google_access_token: text("google_access_token").notNull(),
+	google_refresh_token: text("google_refresh_token"),
+	google_access_token_expires_at: integer(
+		"google_access_token_expires_at",
+	).notNull(),
+	google_id_token: text("google_id_token").notNull(),
 });
 
 export const authenticationSchema = z.object({
