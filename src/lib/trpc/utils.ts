@@ -5,5 +5,5 @@ export function getBaseUrl() {
 }
 
 export function getUrl() {
-	return getBaseUrl() + "/api/trpc";
+	return `${getBaseUrl()}/api/trpc`;
 }

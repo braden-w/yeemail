@@ -115,8 +115,8 @@ export async function updateUser(
 
 	if (!result.success) {
 		const error = result.error.flatten().fieldErrors;
-		if (error.name) return { error: "Invalid name - " + error.name[0] };
-		if (error.email) return { error: "Invalid email - " + error.email[0] };
+		if (error.name) return { error: `Invalid name - ${error.name[0]}` };
+		if (error.email) return { error: `Invalid email - ${error.email[0]}` };
 		return genericError;
 	}
 

@@ -17,8 +17,8 @@ export default function SignInPage() {
 	});
 
 	return (
-		<main className="max-w-lg mx-auto my-4 bg-popover p-10">
-			<h1 className="text-2xl font-bold text-center">
+		<main className="mx-auto my-4 max-w-lg bg-popover p-10">
+			<h1 className="text-center font-bold text-2xl">
 				Sign in to your account
 			</h1>
 			<AuthFormError state={state} />
@@ -35,7 +35,7 @@ export default function SignInPage() {
 				<br />
 				<SubmitButton />
 			</form>
-			<div className="mt-4 text-sm text-center text-muted-foreground">
+			<div className="mt-4 text-center text-muted-foreground text-sm">
 				Don&apos;t have an account yet?{" "}
 				<Link
 					href="/sign-up"

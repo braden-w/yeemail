@@ -1,9 +1,9 @@
 import { db } from "@/lib/db/index";
 import { eq } from "drizzle-orm";
 import {
-	SavedEventId,
-	NewSavedEventParams,
-	UpdateSavedEventParams,
+	type SavedEventId,
+	type NewSavedEventParams,
+	type UpdateSavedEventParams,
 	updateSavedEventSchema,
 	insertSavedEventSchema,
 	savedEvents,

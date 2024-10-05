@@ -1,9 +1,9 @@
 import { sql } from "drizzle-orm";
 import { text, varchar, timestamp, pgTable } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
-import { z } from "zod";
+import type { z } from "zod";
 
-import { type getEmails } from "@/lib/api/emails/queries";
+import type { getEmails } from "@/lib/api/emails/queries";
 
 import { nanoid, timestamps } from "@/lib/utils";
 

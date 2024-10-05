@@ -1,9 +1,9 @@
 import { db } from "@/lib/db/index";
 import { and, eq } from "drizzle-orm";
 import {
-	EmailId,
-	NewEmailParams,
-	UpdateEmailParams,
+	type EmailId,
+	type NewEmailParams,
+	type UpdateEmailParams,
 	updateEmailSchema,
 	insertEmailSchema,
 	emails,

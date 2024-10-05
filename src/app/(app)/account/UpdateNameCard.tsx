@@ -16,7 +16,7 @@ export default function UpdateNameCard({ name }: { name: string }) {
 	});
 
 	useEffect(() => {
-		if (state.success == true) toast.success("Updated User");
+		if (state.success === true) toast.success("Updated User");
 		if (state.error) toast.error("Error", { description: state.error });
 	}, [state]);
 

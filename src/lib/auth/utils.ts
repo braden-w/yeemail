@@ -1,10 +1,10 @@
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 
-import { type Cookie } from "lucia";
+import type { Cookie } from "lucia";
 
 import { validateRequest } from "./lucia";
-import { UsernameAndPassword, authenticationSchema } from "../db/schema/auth";
+import { type UsernameAndPassword, authenticationSchema } from "../db/schema/auth";
 
 export type AuthSession = {
 	session: {
@@ -44,7 +44,7 @@ export const setAuthCookie = (cookie: Cookie) => {
 
 const getErrorMessage = (errors: any): string => {
 	if (errors.email) return "Invalid Email";
-	if (errors.password) return "Invalid Password - " + errors.password[0];
+	if (errors.password) return `Invalid Password - ${errors.password[0]}`;
 	return ""; // return a default error message or an empty string
 };
 

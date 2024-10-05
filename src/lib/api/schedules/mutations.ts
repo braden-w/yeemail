@@ -1,9 +1,9 @@
 import { db } from "@/lib/db/index";
 import { and, eq } from "drizzle-orm";
 import {
-	ScheduleId,
-	NewScheduleParams,
-	UpdateScheduleParams,
+	type ScheduleId,
+	type NewScheduleParams,
+	type UpdateScheduleParams,
 	updateScheduleSchema,
 	insertScheduleSchema,
 	schedules,

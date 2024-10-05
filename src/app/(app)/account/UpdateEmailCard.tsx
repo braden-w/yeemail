@@ -16,7 +16,7 @@ export default function UpdateEmailCard({ email }: { email: string }) {
 	});
 
 	useEffect(() => {
-		if (state.success == true) toast.success("Updated Email");
+		if (state.success === true) toast.success("Updated Email");
 		if (state.error) toast.error("Error", { description: state.error });
 	}, [state]);
 

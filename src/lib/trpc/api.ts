@@ -11,7 +11,7 @@ import {
 	TRPCClientError,
 } from "@trpc/client";
 import { callProcedure } from "@trpc/server";
-import { type TRPCErrorResponse } from "@trpc/server/rpc";
+import type { TRPCErrorResponse } from "@trpc/server/rpc";
 import { observable } from "@trpc/server/observable";
 
 import { cache } from "react";

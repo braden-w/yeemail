@@ -14,7 +14,7 @@ export function AccountCard({ params, children }: AccountCardProps) {
 	return (
 		<Card>
 			<div id="body" className="p-4 ">
-				<h3 className="text-xl font-semibold">{header}</h3>
+				<h3 className="font-semibold text-xl">{header}</h3>
 				<p className="text-muted-foreground">{description}</p>
 			</div>
 			{children}
@@ -35,7 +35,7 @@ export function AccountCardFooter({
 }) {
 	return (
 		<div
-			className="bg-muted p-4 border dark:bg-card flex justify-between items-center rounded-b-lg"
+			className="flex items-center justify-between rounded-b-lg border bg-muted p-4 dark:bg-card"
 			id="footer"
 		>
 			<p className="text-muted-foreground text-sm">{description}</p>

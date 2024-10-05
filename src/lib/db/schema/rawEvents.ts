@@ -3,7 +3,7 @@ import { timestamp, text, varchar, pgTable } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 
-import { type getRawEvents } from "@/lib/api/rawEvents/queries";
+import type { getRawEvents } from "@/lib/api/rawEvents/queries";
 
 import { nanoid, timestamps } from "@/lib/utils";
 
