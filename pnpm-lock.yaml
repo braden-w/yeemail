@@ -53,9 +53,6 @@ importers:
       '@trpc/server':
         specifier: ^10.37.1
         version: 10.45.2
-      '@vercel/sdk':
-        specifier: 14.0.0-canary.3
-        version: 14.0.0-canary.3(zod@3.23.8)
       ai:
         specifier: ^3.4.9
         version: 3.4.9(react@18.3.1)(sswr@2.1.0(svelte@4.2.19))(svelte@4.2.19)(vue@3.5.11(typescript@5.6.2))(zod@3.23.8)
@@ -1599,11 +1596,6 @@ packages:
 
   '@types/react@18.3.11':
     resolution: {integrity: sha512-r6QZ069rFTjrEYgFdOck1gK7FLVsgJE7tTz0pQBczlBNUhBNk0MQH4UbnFSwjpQLMkLzgqvBBa+qGpLje16eTQ==}
-
-  '@vercel/sdk@14.0.0-canary.3':
-    resolution: {integrity: sha512-yeZ0VfC5bqpPCf/wr2oe29O4Dea4rqru1TD+lBArwnyu8CEQaHuU/m2Lff9mswGFpjpSO03k/yn0gxTUaCU/RA==}
-    peerDependencies:
-      zod: '>= 3'
 
   '@vue/compiler-core@3.5.11':
     resolution: {integrity: sha512-PwAdxs7/9Hc3ieBO12tXzmTD+Ln4qhT/56S+8DvrrZ4kLDn4Z/AMUr8tXJD0axiJBS0RKIoNaR0yMuQB9v9Udg==}
@@ -3825,10 +3817,6 @@ snapshots:
     dependencies:
       '@types/prop-types': 15.7.13
       csstype: 3.1.3
-
-  '@vercel/sdk@14.0.0-canary.3(zod@3.23.8)':
-    dependencies:
-      zod: 3.23.8
 
   '@vue/compiler-core@3.5.11':
     dependencies:
