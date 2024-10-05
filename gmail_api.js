@@ -1,27 +1,27 @@
-const fs = require('fs').promises;
-const path = require('path');
-const process = require('process');
-const {authenticate} = require('@google-cloud/local-auth');
-const {google} = require('googleapis');
+const fs = require("node:fs").promises;
+const path = require("node:path");
+const process = require("node:process");
+const { authenticate } = require("@google-cloud/local-auth");
+const { google } = require("googleapis");
 
 // If modifying these scopes, delete token.json.
-const SCOPES = ['https://www.googleapis.com/auth/gmail.readonly'];
+const SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"];
 // The file token.json stores the user's access and refresh tokens.
-const TOKEN_PATH = path.join(process.cwd(), 'token.json');
-const CREDENTIALS_PATH = path.join(process.cwd(), 'credentials.json');
+const TOKEN_PATH = path.join(process.cwd(), "token.json");
+const CREDENTIALS_PATH = path.join(process.cwd(), "credentials.json");
 
 /**
  * Loads saved credentials from token.json if it exists.
  * @returns {Promise<google.auth.OAuth2|null>} The loaded client or null if token.json does not exist.
  */
 async function loadSavedCredentialsIfExist() {
-    try {
-        const content = await fs.readFile(TOKEN_PATH);
-        const credentials = JSON.parse(content);
-        return google.auth.fromJSON(credentials);
-    } catch (err) {
-        return null;
-    }
+	try {
+		const content = await fs.readFile(TOKEN_PATH);
+		const credentials = JSON.parse(content);
+		return google.auth.fromJSON(credentials);
+	} catch (err) {
+		return null;
+	}
 }
 
 /**
@@ -30,16 +30,16 @@ async function loadSavedCredentialsIfExist() {
  * @returns {Promise<void>} A Promise that resolves when the credentials are saved.
  */
 async function saveCredentials(client) {
-    const content = await fs.readFile(CREDENTIALS_PATH);
-    const keys = JSON.parse(content);
-    const key = keys.installed || keys.web;
-    const payload = JSON.stringify({
-        type: 'authorized_user',
-        client_id: key.client_id,
-        client_secret: key.client_secret,
-        refresh_token: client.credentials.refresh_token,
-    });
-    await fs.writeFile(TOKEN_PATH, payload);
+	const content = await fs.readFile(CREDENTIALS_PATH);
+	const keys = JSON.parse(content);
+	const key = keys.installed || keys.web;
+	const payload = JSON.stringify({
+		type: "authorized_user",
+		client_id: key.client_id,
+		client_secret: key.client_secret,
+		refresh_token: client.credentials.refresh_token,
+	});
+	await fs.writeFile(TOKEN_PATH, payload);
 }
 
 /**
@@ -49,18 +49,18 @@ async function saveCredentials(client) {
  * @returns {Promise<google.auth.OAuth2>} A Promise that resolves with the authenticated client.
  */
 async function authorize() {
-    let client = await loadSavedCredentialsIfExist();
-    if (client) {
-        return client;
-    }
-    client = await authenticate({
-        scopes: SCOPES,
-        keyfilePath: CREDENTIALS_PATH,
-    });
-    if (client.credentials) {
-        await saveCredentials(client);
-    }
-    return client;
+	let client = await loadSavedCredentialsIfExist();
+	if (client) {
+		return client;
+	}
+	client = await authenticate({
+		scopes: SCOPES,
+		keyfilePath: CREDENTIALS_PATH,
+	});
+	if (client.credentials) {
+		await saveCredentials(client);
+	}
+	return client;
 }
 
 /**
@@ -69,19 +69,19 @@ async function authorize() {
  * @returns {Promise<void>} A Promise that resolves when the labels are listed.
  */
 async function listLabels(auth) {
-    const gmail = google.gmail({version: 'v1', auth});
-    const res = await gmail.users.labels.list({
-        userId: 'me',
-    });
-    const labels = res.data.labels;
-    if (!labels || labels.length === 0) {
-        console.log('No labels found.');
-        return;
-    }
-    console.log('Labels:');
-    labels.forEach((label) => {
-        console.log(`- ${label.name}`);
-    });
+	const gmail = google.gmail({ version: "v1", auth });
+	const res = await gmail.users.labels.list({
+		userId: "me",
+	});
+	const labels = res.data.labels;
+	if (!labels || labels.length === 0) {
+		console.log("No labels found.");
+		return;
+	}
+	console.log("Labels:");
+	labels.forEach((label) => {
+		console.log(`- ${label.name}`);
+	});
 }
 
 authorize().then(listLabels).catch(console.error);
@@ -93,47 +93,49 @@ authorize().then(listLabels).catch(console.error);
  * @returns {Promise<void>} A Promise that resolves when the email is read and the information is extracted.
  */
 async function readEmail(auth, emailId) {
-    const gmail = google.gmail({version: 'v1', auth});
-    const res = await gmail.users.messages.get({
-        userId: 'me', // The user's email address. The special value 'me' can be used to indicate the authenticated user.
-        maxResults: 50, // The maximum number of messages to return.
-        id: emailId,
-        format: 'full',
-    });
+	const gmail = google.gmail({ version: "v1", auth });
+	const res = await gmail.users.messages.get({
+		userId: "me", // The user's email address. The special value 'me' can be used to indicate the authenticated user.
+		maxResults: 50, // The maximum number of messages to return.
+		id: emailId,
+		format: "full",
+	});
 
-    const email = res.data; // JSON object representing the email.
-    const headers = email.payload.headers;
-    const subject = headers.find(header => header.name === 'Subject').value;
-    const date = headers.find(header => header.name === 'Date').value;
-    const sender = headers.find(header => header.name === 'From').value;
-    const content = getEmailContent(email);
+	const email = res.data; // JSON object representing the email.
+	const headers = email.payload.headers;
+	const subject = headers.find((header) => header.name === "Subject").value;
+	const date = headers.find((header) => header.name === "Date").value;
+	const sender = headers.find((header) => header.name === "From").value;
+	const content = getEmailContent(email);
 
-    console.log('Subject:', subject);
-    console.log('Date:', date);
-    console.log('Sender:', sender);
-    console.log('Content:', content);
+	console.log("Subject:", subject);
+	console.log("Date:", date);
+	console.log("Sender:", sender);
+	console.log("Content:", content);
 }
 
 /**
  * Extracts the content of an email.
- * @param {object} email The email object, JSON format. 
+ * @param {object} email The email object, JSON format.
  * @returns {string} The content of the email.
  */
 function getEmailContent(email) {
-    if (email.payload.parts && email.payload.parts.length > 0) {
-        const parts = email.payload.parts;
-        const body = parts.find(part => part.mimeType === 'text/plain');
-        if (body) {
-            return body.body.data ? Buffer.from(body.body.data, 'base64').toString() : '';
-        }
-    }
-    return '';
+	if (email.payload.parts && email.payload.parts.length > 0) {
+		const parts = email.payload.parts;
+		const body = parts.find((part) => part.mimeType === "text/plain");
+		if (body) {
+			return body.body.data
+				? Buffer.from(body.body.data, "base64").toString()
+				: "";
+		}
+	}
+	return "";
 }
 
 // Example usage:
 // authorize().then(auth => readEmail(auth, 'emailId')).catch(console.error);
 
-const filePath = path.join(process.cwd(), 'email.txt');
+const filePath = path.join(process.cwd(), "email.txt");
 
 /**
  * Stores the email information in a text file.
@@ -145,8 +147,8 @@ const filePath = path.join(process.cwd(), 'email.txt');
  * @returns {Promise<void>} A Promise that resolves when the information is stored in the text file.
  */
 async function storeEmailInformation(filePath, subject, date, sender, content) {
-    const emailInformation = `Subject: ${subject}\nDate: ${date}\nSender: ${sender}\nContent: ${content}`;
-    await fs.writeFile(filePath, emailInformation);
+	const emailInformation = `Subject: ${subject}\nDate: ${date}\nSender: ${sender}\nContent: ${content}`;
+	await fs.writeFile(filePath, emailInformation);
 }
 
 // Example usage:
