@@ -50,7 +50,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-import type { RawEvent } from "@/lib/db/schema/rawEvents";
+import type { SuggestedEvent } from "@/lib/db/schema/suggestedEvents";
 import { nanoid } from "@/lib/utils";
 import {
 	Tooltip,
@@ -91,7 +91,7 @@ function randomDate(start: Date, end: Date): Date {
 	);
 }
 
-export const sampleRawEvents: RawEvent[] = Array.from(
+export const sampleSuggestedEvents: SuggestedEvent[] = Array.from(
 	{ length: 20 },
 	(_, index) => {
 		const startDate = randomDate(new Date(2024, 0, 1), new Date(2024, 11, 31));
@@ -112,7 +112,7 @@ export const sampleRawEvents: RawEvent[] = Array.from(
 	},
 );
 
-export default function RawEvents() {
+export default function SuggestedEvents() {
 	const [date, setDate] = useState<Date>();
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -255,7 +255,7 @@ export type Payment = {
 	email: string;
 };
 
-export const columns: ColumnDef<RawEvent>[] = [
+export const columns: ColumnDef<SuggestedEvent>[] = [
 	{
 		id: "select",
 		header: ({ table }) => (
@@ -368,7 +368,7 @@ export function DataTableDemo() {
 	const [rowSelection, setRowSelection] = useState({});
 
 	const table = useReactTable({
-		data: sampleRawEvents,
+		data: sampleSuggestedEvents,
 		columns,
 		onSortingChange: setSorting,
 		onColumnFiltersChange: setColumnFilters,

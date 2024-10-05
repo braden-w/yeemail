@@ -5,25 +5,34 @@ import {
 	savedEventIdSchema,
 	savedEvents,
 } from "@/lib/db/schema/savedEvents";
-import { rawEvents } from "@/lib/db/schema/rawEvents";
+import { suggestedEvents } from "@/lib/db/schema/suggestedEvents";
 
 export const getSavedEvents = async () => {
 	const rows = await db
-		.select({ savedEvent: savedEvents, rawEvent: rawEvents })
+		.select({ savedEvent: savedEvents, suggestedEvent: suggestedEvents })
 		.from(savedEvents)
-		.leftJoin(rawEvents, eq(savedEvents.rawEventId, rawEvents.id));
-	const s = rows.map((r) => ({ ...r.savedEvent, rawEvent: r.rawEvent }));
+		.leftJoin(
+			suggestedEvents,
+			eq(savedEvents.suggestedEventId, suggestedEvents.id),
+		);
+	const s = rows.map((r) => ({
+		...r.savedEvent,
+		suggestedEvent: r.suggestedEvent,
+	}));
 	return { savedEvents: s };
 };
 
 export const getSavedEventById = async (id: SavedEventId) => {
 	const { id: savedEventId } = savedEventIdSchema.parse({ id });
 	const [row] = await db
-		.select({ savedEvent: savedEvents, rawEvent: rawEvents })
+		.select({ savedEvent: savedEvents, suggestedEvent: suggestedEvents })
 		.from(savedEvents)
 		.where(eq(savedEvents.id, savedEventId))
-		.leftJoin(rawEvents, eq(savedEvents.rawEventId, rawEvents.id));
+		.leftJoin(
+			suggestedEvents,
+			eq(savedEvents.suggestedEventId, suggestedEvents.id),
+		);
 	if (row === undefined) return {};
-	const s = { ...row.savedEvent, rawEvent: row.rawEvent };
+	const s = { ...row.savedEvent, suggestedEvent: row.suggestedEvent };
 	return { savedEvent: s };
 };
