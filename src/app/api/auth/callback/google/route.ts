@@ -67,7 +67,7 @@ export async function GET(request: Request): Promise<Response> {
 			const session = await lucia.createSession(existingUser.id, {
 				google_access_token: accessToken,
 				google_refresh_token: refreshToken,
-				google_access_token_expires_at: accessTokenExpiresAt.toISOString(),
+				google_access_token_expires_at: accessTokenExpiresAt,
 				google_id_token: idToken,
 			});
 			const sessionCookie = lucia.createSessionCookie(session.id);
@@ -92,7 +92,12 @@ export async function GET(request: Request): Promise<Response> {
 			google_id: googleUser.id,
 		});
 
-		const session = await lucia.createSession(userId, {});
+		const session = await lucia.createSession(userId, {
+			google_access_token: accessToken,
+			google_refresh_token: refreshToken,
+			google_access_token_expires_at: accessTokenExpiresAt,
+			google_id_token: idToken,
+		});
 		const sessionCookie = lucia.createSessionCookie(session.id);
 		cookies().set(
 			sessionCookie.name,

@@ -4,7 +4,10 @@ import { cookies } from "next/headers";
 import type { Cookie } from "lucia";
 
 import { validateRequest } from "./lucia";
-import { type UsernameAndPassword, authenticationSchema } from "../db/schema/auth";
+import {
+	type UsernameAndPassword,
+	authenticationSchema,
+} from "../db/schema/auth";
 
 export type AuthSession = {
 	session: {

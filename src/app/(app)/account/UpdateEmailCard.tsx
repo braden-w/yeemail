@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
-import { useFormState, useFormStatus } from "react-dom";
+import { useActionState, useEffect } from "react";
 
 import { AccountCard, AccountCardFooter, AccountCardBody } from "./AccountCard";
 import { updateUser } from "@/lib/actions/users";
@@ -11,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 export default function UpdateEmailCard({ email }: { email: string }) {
-	const [state, formAction] = useFormState(updateUser, {
+	const [state, formAction, pending] = useActionState(updateUser, {
 		error: "",
 	});
 
@@ -33,14 +32,9 @@ export default function UpdateEmailCard({ email }: { email: string }) {
 					<Input defaultValue={email ?? ""} name="email" />
 				</AccountCardBody>
 				<AccountCardFooter description="We will email vou to verify the change.">
-					<Submit />
+					<Button disabled={pending}>Update Email</Button>;
 				</AccountCardFooter>
 			</form>
 		</AccountCard>
 	);
 }
-
-const Submit = () => {
-	const { pending } = useFormStatus();
-	return <Button disabled={pending}>Update Email</Button>;
-};

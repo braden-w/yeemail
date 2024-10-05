@@ -60,7 +60,7 @@ interface DatabaseUserAttributes {
 interface DatabaseSessionAttributes {
 	google_access_token: string;
 	google_refresh_token: string | null;
-	google_access_token_expires_at: string;
+	google_access_token_expires_at: Date;
 	google_id_token: string;
 }
 
