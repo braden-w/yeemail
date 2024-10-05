@@ -1,8 +1,14 @@
 "use client";
 
-import Link from "next/link";
+import AuthFormError from "@/components/auth/AuthFormError";
 import { buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { signInAction } from "@/lib/actions/users";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
+import { useFormState, useFormStatus } from "react-dom";
 
 export default function SignInPage() {
 	return (
@@ -42,7 +48,7 @@ export default function SignInPage() {
 							Enter your email below to create your account
 						</p>
 					</div>
-					{/* <UserAuthForm /> */}
+					<UserAuthForm />
 					<p className="px-8 text-center text-muted-foreground text-sm">
 						By clicking continue, you agree to our{" "}
 						<Link
@@ -66,48 +72,48 @@ export default function SignInPage() {
 	);
 }
 
-// export default function SignInPage() {
-// 	const [state, formAction] = useFormState(signInAction, {
-// 		error: "",
-// 	});
+export function UserAuthForm() {
+	const [state, formAction] = useFormState(signInAction, {
+		error: "",
+	});
 
-// 	return (
-// 		<main className="mx-auto my-4 max-w-lg bg-popover p-10">
-// 			<h1 className="text-center font-bold text-2xl">
-// 				Sign in to your account
-// 			</h1>
-// 			<AuthFormError state={state} />
-// 			<form action={formAction}>
-// 				<Label htmlFor="email" className="text-muted-foreground">
-// 					Email
-// 				</Label>
-// 				<Input name="email" id="email" type="email" required />
-// 				<br />
-// 				<Label htmlFor="password" className="text-muted-foreground">
-// 					Password
-// 				</Label>
-// 				<Input type="password" name="password" id="password" required />
-// 				<br />
-// 				<SubmitButton />
-// 			</form>
-// 			<div className="mt-4 text-center text-muted-foreground text-sm">
-// 				Don&apos;t have an account yet?{" "}
-// 				<Link
-// 					href="/sign-up"
-// 					className="text-accent-foreground underline hover:text-primary"
-// 				>
-// 					Create an account
-// 				</Link>
-// 			</div>
-// 		</main>
-// 	);
-// }
+	return (
+		<main className="mx-auto my-4 max-w-lg bg-popover p-10">
+			<h1 className="text-center font-bold text-2xl">
+				Sign in to your account
+			</h1>
+			<AuthFormError state={state} />
+			<form action={formAction}>
+				<Label htmlFor="email" className="text-muted-foreground">
+					Email
+				</Label>
+				<Input name="email" id="email" type="email" required />
+				<br />
+				<Label htmlFor="password" className="text-muted-foreground">
+					Password
+				</Label>
+				<Input type="password" name="password" id="password" required />
+				<br />
+				<SubmitButton />
+			</form>
+			<div className="mt-4 text-center text-muted-foreground text-sm">
+				Don&apos;t have an account yet?{" "}
+				<Link
+					href="/sign-up"
+					className="text-accent-foreground underline hover:text-primary"
+				>
+					Create an account
+				</Link>
+			</div>
+		</main>
+	);
+}
 
-// const SubmitButton = () => {
-// 	const { pending } = useFormStatus();
-// 	return (
-// 		<Button className="w-full" type="submit" disabled={pending}>
-// 			Sign{pending ? "ing" : ""} in
-// 		</Button>
-// 	);
-// };
+const SubmitButton = () => {
+	const { pending } = useFormStatus();
+	return (
+		<Button className="w-full" type="submit" disabled={pending}>
+			Sign{pending ? "ing" : ""} in
+		</Button>
+	);
+};
