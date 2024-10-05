@@ -5,57 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1728141018194,
-      "tag": "0000_peaceful_mauler",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1728144006775,
-      "tag": "0001_petite_wasp",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1728144629414,
-      "tag": "0002_pink_scrambler",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1728146412634,
-      "tag": "0003_damp_daredevil",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1728148033767,
-      "tag": "0004_melted_dexter_bennett",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1728156736489,
-      "tag": "0005_clever_liz_osborn",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "7",
-      "when": 1728165040926,
-      "tag": "0006_illegal_tomas",
-      "breakpoints": true
-    },
-    {
-      "idx": 7,
-      "version": "7",
-      "when": 1728170456055,
-      "tag": "0007_youthful_gauntlet",
+      "when": 1728170740484,
+      "tag": "0000_nervous_supernaut",
       "breakpoints": true
     }
   ]
