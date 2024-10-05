@@ -48,6 +48,61 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import type { RawEvent } from "@/lib/db/schema/rawEvents";
+import { nanoid } from "@/lib/utils";
+
+const locations = [
+	"Virtual",
+	"Conference Center",
+	"University Auditorium",
+	"City Park",
+	"Community Center",
+	"Local Library",
+	"Art Gallery",
+	"Sports Arena",
+	"Hotel Ballroom",
+	"Outdoor Amphitheater",
+];
+
+const eventTitles = [
+	"Tech Innovation Summit",
+	"Annual Charity Gala",
+	"Environmental Awareness Workshop",
+	"Local Food Festival",
+	"Career Development Seminar",
+	"Fitness and Wellness Expo",
+	"Art and Culture Symposium",
+	"Music in the Park",
+	"Entrepreneurship Bootcamp",
+	"Science Fair for Kids",
+];
+
+function randomDate(start: Date, end: Date): Date {
+	return new Date(
+		start.getTime() + Math.random() * (end.getTime() - start.getTime()),
+	);
+}
+
+export const sampleRawEvents: RawEvent[] = Array.from(
+	{ length: 20 },
+	(_, index) => {
+		const startDate = randomDate(new Date(2024, 0, 1), new Date(2024, 11, 31));
+		const endDate = new Date(
+			startDate.getTime() + Math.random() * 1000 * 60 * 60 * 8,
+		); // Up to 8 hours later
+
+		return {
+			id: nanoid(),
+			title: `${eventTitles[index % eventTitles.length]} ${index + 1}`,
+			description: `This is a sample description for the ${eventTitles[index % eventTitles.length]} event.`,
+			start: startDate,
+			end: endDate,
+			location: locations[Math.floor(Math.random() * locations.length)],
+			createdAt: new Date(),
+			updatedAt: new Date(),
+		};
+	},
+);
 
 export default function RawEvents() {
 	const [date, setDate] = useState<Date>();
@@ -192,7 +247,7 @@ export type Payment = {
 	email: string;
 };
 
-export const columns: ColumnDef<Payment>[] = [
+export const columns: ColumnDef<RawEvent>[] = [
 	{
 		id: "select",
 		header: ({ table }) => (
@@ -216,47 +271,38 @@ export const columns: ColumnDef<Payment>[] = [
 		enableHiding: false,
 	},
 	{
-		accessorKey: "status",
-		header: "Status",
-		cell: ({ row }) => (
-			<div className="capitalize">{row.getValue("status")}</div>
+		accessorKey: "title",
+		header: ({ column }) => (
+			<Button
+				variant="ghost"
+				onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+			>
+				Title
+				<ArrowUpDown className="ml-2 h-4 w-4" />
+			</Button>
 		),
+		cell: ({ row }) => <div>{row.getValue("title")}</div>,
 	},
 	{
-		accessorKey: "email",
-		header: ({ column }) => {
-			return (
-				<Button
-					variant="ghost"
-					onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-				>
-					Email
-					<ArrowUpDown className="ml-2 h-4 w-4" />
-				</Button>
-			);
-		},
-		cell: ({ row }) => <div className="lowercase">{row.getValue("email")}</div>,
+		accessorKey: "start",
+		header: "Start Date",
+		cell: ({ row }) => <div>{format(row.getValue("start"), "PPP")}</div>,
 	},
 	{
-		accessorKey: "amount",
-		header: () => <div className="text-right">Amount</div>,
-		cell: ({ row }) => {
-			const amount = parseFloat(row.getValue("amount"));
-
-			// Format the amount as a dollar amount
-			const formatted = new Intl.NumberFormat("en-US", {
-				style: "currency",
-				currency: "USD",
-			}).format(amount);
-
-			return <div className="text-right font-medium">{formatted}</div>;
-		},
+		accessorKey: "end",
+		header: "End Date",
+		cell: ({ row }) => <div>{format(row.getValue("end"), "PPP")}</div>,
+	},
+	{
+		accessorKey: "location",
+		header: "Location",
+		cell: ({ row }) => <div>{row.getValue("location")}</div>,
 	},
 	{
 		id: "actions",
 		enableHiding: false,
 		cell: ({ row }) => {
-			const payment = row.original;
+			const event = row.original;
 
 			return (
 				<DropdownMenu>
@@ -269,13 +315,13 @@ export const columns: ColumnDef<Payment>[] = [
 					<DropdownMenuContent align="end">
 						<DropdownMenuLabel>Actions</DropdownMenuLabel>
 						<DropdownMenuItem
-							onClick={() => navigator.clipboard.writeText(payment.id)}
+							onClick={() => navigator.clipboard.writeText(event.id)}
 						>
-							Copy payment ID
+							Copy event ID
 						</DropdownMenuItem>
 						<DropdownMenuSeparator />
-						<DropdownMenuItem>View customer</DropdownMenuItem>
-						<DropdownMenuItem>View payment details</DropdownMenuItem>
+						<DropdownMenuItem>View event details</DropdownMenuItem>
+						<DropdownMenuItem>Edit event</DropdownMenuItem>
 					</DropdownMenuContent>
 				</DropdownMenu>
 			);
@@ -290,7 +336,7 @@ export function DataTableDemo() {
 	const [rowSelection, setRowSelection] = useState({});
 
 	const table = useReactTable({
-		data,
+		data: sampleRawEvents,
 		columns,
 		onSortingChange: setSorting,
 		onColumnFiltersChange: setColumnFilters,
