@@ -1,16 +1,14 @@
 "use client";
 
 import AuthFormError from "@/components/auth/AuthFormError";
-import { buttonVariants } from "@/components/ui/button";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { signInAction } from "@/lib/actions/users";
 import { cn } from "@/lib/utils";
-import { Loader2 } from "lucide-react";
+import { Github, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useActionState } from "react";
-import { useFormState, useFormStatus } from "react-dom";
 
 export default function SignInPage() {
 	return (
@@ -96,6 +94,7 @@ export function UserAuthForm() {
 							autoCapitalize="none"
 							autoComplete="email"
 							autoCorrect="off"
+							required
 							disabled={pending}
 						/>
 						<br />
@@ -110,12 +109,30 @@ export function UserAuthForm() {
 							disabled={pending}
 						/>
 					</div>
-					<Button disabled={pending}>
+					<Button type="submit" disabled={pending}>
 						{pending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
 						Sign{pending ? "ing" : ""} in
 					</Button>
 				</div>
 			</form>
+			<div className="relative">
+				<div className="absolute inset-0 flex items-center">
+					<span className="w-full border-t" />
+				</div>
+				<div className="relative flex justify-center text-xs uppercase">
+					<span className="bg-background px-2 text-muted-foreground">
+						Or continue with
+					</span>
+				</div>
+			</div>
+			<Button variant="outline" type="button" disabled={pending}>
+				{pending ? (
+					<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+				) : (
+					<Github className="mr-2 h-4 w-4" />
+				)}{" "}
+				GitHub
+			</Button>
 			<div className="mt-4 text-center text-muted-foreground text-sm">
 				Don&apos;t have an account yet?{" "}
 				<Link
