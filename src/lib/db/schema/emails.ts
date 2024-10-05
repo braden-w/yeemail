@@ -1,7 +1,7 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, timestamp, varchar } from "drizzle-orm/pg-core";
+import { text, timestamp, varchar, pgTable } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
-import type { z } from "zod";
+import { z } from "zod";
 
 import type { getEmails } from "@/lib/api/emails/queries";
 
@@ -14,9 +14,9 @@ export const emails = pgTable("emails", {
 	subject: text("subject").notNull(),
 	content: text("content").notNull(),
 	sender: text("sender").notNull(),
-	date: text("date").notNull(),
+	receivedAt: timestamp("received_at").notNull(),
+	links: text("links").notNull(),
 	userId: varchar("user_id", { length: 256 }).notNull(),
-	links: text("links").array().notNull().default([]),
 
 	createdAt: timestamp("created_at").notNull().default(sql`now()`),
 	updatedAt: timestamp("updated_at").notNull().default(sql`now()`),
@@ -26,15 +26,23 @@ export const emails = pgTable("emails", {
 const baseSchema = createSelectSchema(emails).omit(timestamps);
 
 export const insertEmailSchema = createInsertSchema(emails).omit(timestamps);
-export const insertEmailParams = baseSchema.extend({}).omit({
-	id: true,
-	userId: true,
-});
+export const insertEmailParams = baseSchema
+	.extend({
+		receivedAt: z.coerce.string().min(1),
+	})
+	.omit({
+		id: true,
+		userId: true,
+	});
 
 export const updateEmailSchema = baseSchema;
-export const updateEmailParams = baseSchema.extend({}).omit({
-	userId: true,
-});
+export const updateEmailParams = baseSchema
+	.extend({
+		receivedAt: z.coerce.string().min(1),
+	})
+	.omit({
+		userId: true,
+	});
 export const emailIdSchema = baseSchema.pick({ id: true });
 
 // Types for emails - used to type API request params and within Components
