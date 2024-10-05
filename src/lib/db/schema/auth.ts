@@ -20,9 +20,10 @@ export const sessions = pgTable("session", {
 	}).notNull(),
 	google_access_token: text("google_access_token").notNull(),
 	google_refresh_token: text("google_refresh_token"),
-	google_access_token_expires_at: integer(
-		"google_access_token_expires_at",
-	).notNull(),
+	google_access_token_expires_at: timestamp("google_access_token_expires_at", {
+		withTimezone: true,
+		mode: "date",
+	}).notNull(),
 	google_id_token: text("google_id_token").notNull(),
 });
 
