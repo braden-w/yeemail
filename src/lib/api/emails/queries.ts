@@ -1,7 +1,7 @@
-import { db } from "@/lib/db/index";
-import { eq, and } from "drizzle-orm";
 import { getUserAuth } from "@/lib/auth/utils";
+import { db } from "@/lib/db/index";
 import { type EmailId, emailIdSchema, emails } from "@/lib/db/schema/emails";
+import { and, eq } from "drizzle-orm";
 
 export const getEmails = async () => {
 	const { session } = await getUserAuth();

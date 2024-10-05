@@ -1,6 +1,5 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
 	DropdownMenu,
@@ -13,11 +12,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
-} from "@/components/ui/popover";
-import {
 	Table,
 	TableBody,
 	TableCell,
@@ -25,7 +19,14 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import { cn } from "@/lib/utils";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipProvider,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
+import type { SuggestedEvent } from "@/lib/db/schema/suggestedEvents";
+import { nanoid } from "@/lib/utils";
 import {
 	type ColumnDef,
 	type ColumnFiltersState,
@@ -41,7 +42,6 @@ import {
 import { format } from "date-fns";
 import {
 	ArrowUpDown,
-	CalendarIcon,
 	CheckIcon,
 	ChevronDown,
 	MailIcon,
@@ -50,14 +50,6 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-import type { SuggestedEvent } from "@/lib/db/schema/suggestedEvents";
-import { nanoid } from "@/lib/utils";
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipProvider,
-	TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 const locations = [
 	"Virtual",
@@ -432,7 +424,7 @@ export function DataTableDemo() {
 				</Table>
 			</div>
 			<div className="flex items-center justify-end space-x-2 py-4">
-				<div className="flex-1 text-sm text-muted-foreground">
+				<div className="flex-1 text-muted-foreground text-sm">
 					{table.getFilteredSelectedRowModel().rows.length} of{" "}
 					{table.getFilteredRowModel().rows.length} row(s) selected.
 				</div>

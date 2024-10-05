@@ -1,14 +1,14 @@
 import { db } from "@/lib/db/index";
-import { eq } from "drizzle-orm";
 import {
-	type SavedEventId,
 	type NewSavedEventParams,
+	type SavedEventId,
 	type UpdateSavedEventParams,
-	updateSavedEventSchema,
 	insertSavedEventSchema,
-	savedEvents,
 	savedEventIdSchema,
+	savedEvents,
+	updateSavedEventSchema,
 } from "@/lib/db/schema/savedEvents";
+import { eq } from "drizzle-orm";
 
 export const createSavedEvent = async (savedEvent: NewSavedEventParams) => {
 	const newSavedEvent = insertSavedEventSchema.parse(savedEvent);

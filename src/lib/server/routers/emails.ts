@@ -1,15 +1,15 @@
-import { getEmailById, getEmails } from "@/lib/api/emails/queries";
-import { publicProcedure, router } from "@/lib/server/trpc";
-import {
-	emailIdSchema,
-	insertEmailParams,
-	updateEmailParams,
-} from "@/lib/db/schema/emails";
 import {
 	createEmail,
 	deleteEmail,
 	updateEmail,
 } from "@/lib/api/emails/mutations";
+import { getEmailById, getEmails } from "@/lib/api/emails/queries";
+import {
+	emailIdSchema,
+	insertEmailParams,
+	updateEmailParams,
+} from "@/lib/db/schema/emails";
+import { publicProcedure, router } from "@/lib/server/trpc";
 
 export const emailsRouter = router({
 	getEmails: publicProcedure.query(async () => {

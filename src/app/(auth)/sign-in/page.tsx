@@ -7,9 +7,9 @@ import { Label } from "@/components/ui/label";
 import { signInAction } from "@/lib/actions/users";
 import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
-import Google from "~icons/logos/google";
 import Link from "next/link";
 import { useActionState } from "react";
+import Google from "~icons/logos/google";
 
 export default function SignInPage() {
 	return (

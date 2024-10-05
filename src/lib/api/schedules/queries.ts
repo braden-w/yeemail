@@ -1,11 +1,11 @@
-import { db } from "@/lib/db/index";
-import { eq, and } from "drizzle-orm";
 import { getUserAuth } from "@/lib/auth/utils";
+import { db } from "@/lib/db/index";
 import {
 	type ScheduleId,
 	scheduleIdSchema,
 	schedules,
 } from "@/lib/db/schema/schedules";
+import { and, eq } from "drizzle-orm";
 
 export const getSchedules = async () => {
 	const { session } = await getUserAuth();

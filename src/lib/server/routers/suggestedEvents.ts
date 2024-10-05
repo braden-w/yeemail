@@ -1,18 +1,18 @@
 import {
-	getSuggestedEventById,
-	getSuggestedEvents,
-} from "@/lib/api/suggestedEvents/queries";
-import { publicProcedure, router } from "@/lib/server/trpc";
-import {
-	suggestedEventIdSchema,
-	insertSuggestedEventParams,
-	updateSuggestedEventParams,
-} from "@/lib/db/schema/suggestedEvents";
-import {
 	createSuggestedEvent,
 	deleteSuggestedEvent,
 	updateSuggestedEvent,
 } from "@/lib/api/suggestedEvents/mutations";
+import {
+	getSuggestedEventById,
+	getSuggestedEvents,
+} from "@/lib/api/suggestedEvents/queries";
+import {
+	insertSuggestedEventParams,
+	suggestedEventIdSchema,
+	updateSuggestedEventParams,
+} from "@/lib/db/schema/suggestedEvents";
+import { publicProcedure, router } from "@/lib/server/trpc";
 
 export const suggestedEventsRouter = router({
 	getSuggestedEvents: publicProcedure.query(async () => {

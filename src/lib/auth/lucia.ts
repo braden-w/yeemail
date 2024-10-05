@@ -1,12 +1,12 @@
 import { cookies } from "next/headers";
 import { cache } from "react";
 
-import { type Session, type User, Lucia } from "lucia";
 import { db } from "@/lib/db/index";
+import { Lucia, type Session, type User } from "lucia";
 
 import { DrizzlePostgreSQLAdapter } from "@lucia-auth/adapter-drizzle";
-import { sessions, users } from "../db/schema/auth";
 import { Google } from "arctic";
+import { sessions, users } from "../db/schema/auth";
 import { env } from "../env.mjs";
 
 export const adapter = new DrizzlePostgreSQLAdapter(db, sessions, users);

@@ -1,27 +1,27 @@
 {
-  "version": "7",
-  "dialect": "postgresql",
-  "entries": [
-    {
-      "idx": 0,
-      "version": "7",
-      "when": 1728170740484,
-      "tag": "0000_nervous_supernaut",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1728171156552,
-      "tag": "0001_fantastic_rumiko_fujikawa",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1728171644162,
-      "tag": "0002_abandoned_bloodscream",
-      "breakpoints": true
-    }
-  ]
+	"version": "7",
+	"dialect": "postgresql",
+	"entries": [
+		{
+			"idx": 0,
+			"version": "7",
+			"when": 1728170740484,
+			"tag": "0000_nervous_supernaut",
+			"breakpoints": true
+		},
+		{
+			"idx": 1,
+			"version": "7",
+			"when": 1728171156552,
+			"tag": "0001_fantastic_rumiko_fujikawa",
+			"breakpoints": true
+		},
+		{
+			"idx": 2,
+			"version": "7",
+			"when": 1728171644162,
+			"tag": "0002_abandoned_bloodscream",
+			"breakpoints": true
+		}
+	]
 }

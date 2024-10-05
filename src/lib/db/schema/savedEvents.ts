@@ -1,9 +1,9 @@
+import type { getSavedEvents } from "@/lib/api/savedEvents/queries";
 import { sql } from "drizzle-orm";
-import { text, varchar, timestamp, pgTable } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, varchar } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 import { suggestedEvents } from "./suggestedEvents";
-import type { getSavedEvents } from "@/lib/api/savedEvents/queries";
 
 import { nanoid, timestamps } from "@/lib/utils";
 

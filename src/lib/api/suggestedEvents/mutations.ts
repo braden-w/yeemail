@@ -1,14 +1,14 @@
 import { db } from "@/lib/db/index";
-import { eq } from "drizzle-orm";
 import {
-	type SuggestedEventId,
 	type NewSuggestedEventParams,
+	type SuggestedEventId,
 	type UpdateSuggestedEventParams,
-	updateSuggestedEventSchema,
 	insertSuggestedEventSchema,
-	suggestedEvents,
 	suggestedEventIdSchema,
+	suggestedEvents,
+	updateSuggestedEventSchema,
 } from "@/lib/db/schema/suggestedEvents";
+import { eq } from "drizzle-orm";
 
 export const createSuggestedEvent = async (
 	suggestedEvent: NewSuggestedEventParams,

@@ -1,13 +1,13 @@
-import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 import type { Cookie } from "lucia";
 
-import { validateRequest } from "./lucia";
 import {
 	type UsernameAndPassword,
 	authenticationSchema,
 } from "../db/schema/auth";
+import { validateRequest } from "./lucia";
 
 export type AuthSession = {
 	session: {

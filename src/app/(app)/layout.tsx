@@ -1,7 +1,7 @@
-import { checkAuth } from "@/lib/auth/utils";
-import { Toaster } from "@/components/ui/sonner";
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
+import { Toaster } from "@/components/ui/sonner";
+import { checkAuth } from "@/lib/auth/utils";
 import TrpcProvider from "@/lib/trpc/Provider";
 import { cookies } from "next/headers";
 export default async function AppLayout({

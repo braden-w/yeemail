@@ -1,15 +1,15 @@
-import { db } from "@/lib/db/index";
-import { and, eq } from "drizzle-orm";
-import {
-	type ScheduleId,
-	type NewScheduleParams,
-	type UpdateScheduleParams,
-	updateScheduleSchema,
-	insertScheduleSchema,
-	schedules,
-	scheduleIdSchema,
-} from "@/lib/db/schema/schedules";
 import { getUserAuth } from "@/lib/auth/utils";
+import { db } from "@/lib/db/index";
+import {
+	type NewScheduleParams,
+	type ScheduleId,
+	type UpdateScheduleParams,
+	insertScheduleSchema,
+	scheduleIdSchema,
+	schedules,
+	updateScheduleSchema,
+} from "@/lib/db/schema/schedules";
+import { and, eq } from "drizzle-orm";
 
 export const createSchedule = async (schedule: NewScheduleParams) => {
 	const { session } = await getUserAuth();

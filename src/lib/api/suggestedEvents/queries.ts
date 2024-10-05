@@ -1,14 +1,14 @@
 import { db } from "@/lib/db/index";
-import { eq } from "drizzle-orm";
+import {
+	type CompleteSavedEvent,
+	savedEvents,
+} from "@/lib/db/schema/savedEvents";
 import {
 	type SuggestedEventId,
 	suggestedEventIdSchema,
 	suggestedEvents,
 } from "@/lib/db/schema/suggestedEvents";
-import {
-	savedEvents,
-	type CompleteSavedEvent,
-} from "@/lib/db/schema/savedEvents";
+import { eq } from "drizzle-orm";
 
 export const getSuggestedEvents = async () => {
 	const rows = await db.select().from(suggestedEvents);
