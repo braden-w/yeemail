@@ -128,7 +128,7 @@ export function UserAuthForm() {
 			</div>
 			<a
 				className={cn(buttonVariants({ variant: "outline" }))}
-				href="/api/auth/google/login"
+				href="/api/auth/login/google"
 			>
 				{pending ? (
 					<Loader2 className="mr-2 h-4 w-4 animate-spin" />
