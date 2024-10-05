@@ -1,6 +1,20 @@
+"use client";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { useState } from "react";
+import { Calendar } from "@/components/ui/calendar";
+import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import { format } from "date-fns";
+import { CalendarIcon } from "lucide-react";
 
 export default function LandingPage() {
+	const [date, setDate] = useState<Date>();
+
 	return (
 		<div className="flex min-h-screen flex-col">
 			<header className="flex h-14 items-center px-4 lg:px-6">
@@ -41,6 +55,29 @@ export default function LandingPage() {
 									</p>
 								</div>
 								<div className="flex flex-col gap-2 min-[400px]:flex-row">
+									<Popover>
+										<PopoverTrigger asChild>
+											<Button
+												variant={"outline"}
+												className={cn(
+													"w-[280px] justify-start text-left font-normal",
+													!date && "text-muted-foreground",
+												)}
+											>
+												<CalendarIcon className="mr-2 h-4 w-4" />
+												{date ? format(date, "PPP") : <span>Pick a date</span>}
+											</Button>
+										</PopoverTrigger>
+										<PopoverContent className="w-auto p-0">
+											<Calendar
+												mode="single"
+												selected={date}
+												onSelect={setDate}
+												initialFocus
+											/>
+										</PopoverContent>
+									</Popover>
+
 									<Link
 										className="inline-flex h-10 items-center justify-center rounded-md bg-neutral-900 px-8 font-medium text-neutral-50 text-sm shadow transition-colors hover:bg-neutral-900/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-950 disabled:pointer-events-none disabled:opacity-50 dark:bg-neutral-50 dark:text-neutral-900 dark:focus-visible:ring-neutral-300 dark:hover:bg-neutral-50/90"
 										href="#"
