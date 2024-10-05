@@ -43,6 +43,9 @@ const EmailForm = ({
 		defaultValues: email ?? {
 			subject: "",
 			content: "",
+			date: "",
+			sender: "",
+			links: [],
 		},
 	});
 
