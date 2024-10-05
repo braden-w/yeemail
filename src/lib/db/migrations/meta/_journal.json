@@ -8,6 +8,13 @@
       "when": 1728141018194,
       "tag": "0000_peaceful_mauler",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1728144006775,
+      "tag": "0001_petite_wasp",
+      "breakpoints": true
     }
   ]
 }
