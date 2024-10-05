@@ -14,7 +14,7 @@ export const suggestedEvents = pgTable("suggested_events", {
 	title: text("title").notNull(),
 	description: text("description").notNull(),
 	start: timestamp("start").notNull(),
-	end: timestamp("end").notNull(),
+	end: timestamp("end"),
 	location: text("location").notNull(),
 
 	createdAt: timestamp("created_at").notNull().default(sql`now()`),

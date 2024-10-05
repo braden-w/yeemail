@@ -1,0 +1,1 @@
+ALTER TABLE "suggested_events" ALTER COLUMN "end" DROP NOT NULL;

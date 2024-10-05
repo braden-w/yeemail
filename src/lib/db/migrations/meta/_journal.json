@@ -50,6 +50,13 @@
       "when": 1728165040926,
       "tag": "0006_illegal_tomas",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1728170456055,
+      "tag": "0007_youthful_gauntlet",
+      "breakpoints": true
     }
   ]
 }
