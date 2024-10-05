@@ -5,11 +5,11 @@ const fs = require('fs');
 
 const groq = createGroq({
   baseURL: 'https://api.groq.com/openai/v1',
-  apiKey: "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",
+  apiKey: process.env.GROQ_API_KEY,
 });
 
 const emailContent = fs.readFileSync('email.txt', 'utf-8');
-const plaintext_prompt = "You will be given information about an email, including its subject, date, sender, and content. Read the content and see if there are any events mentioned. If there is, format accordingly, and if not, return N/A for all fields. Here is the information:" + emailContent;
+const plaintext_prompt = "You will be given the payload of a list of emails. information about an email, including its subject, date, sender, and content. Read the content and see if there are any events or meetings mentioned. If there is, format accordingly, and if not, return N/A for all fields. Here is the information:" + emailContent;
 
 const { object } = await generateObject({
   model: groq('llama-3.1-70b-versatile'),
