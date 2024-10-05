@@ -6,6 +6,8 @@ import { db } from "@/lib/db/index";
 
 import { DrizzlePostgreSQLAdapter } from "@lucia-auth/adapter-drizzle";
 import { sessions, users } from "../db/schema/auth";
+import { Google } from 'arctic';
+import { env } from '../env.mjs';
 
 
 export const adapter = new DrizzlePostgreSQLAdapter(db, sessions, users);
@@ -22,9 +24,17 @@ export const lucia = new Lucia(adapter, {
       // attributes has the type of DatabaseUserAttributes
       email: attributes.email,
       name: attributes.name,
+      googleId: attributes.google_id,
     }
   },
 })
+
+export const google = new Google(
+  env.GOOGLE_CLIENT_ID,
+  env.GOOGLE_CLIENT_SECRET,
+  "http://localhost:3000/api/auth/callback/google"
+);
+
 
 declare module 'lucia' {
   interface Register {
@@ -36,6 +46,7 @@ declare module 'lucia' {
 interface DatabaseUserAttributes {
   email: string
   name: string;
+  google_id: string;
 }
 
 export const validateRequest = cache(

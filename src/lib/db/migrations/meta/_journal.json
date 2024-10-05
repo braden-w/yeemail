@@ -22,6 +22,13 @@
       "when": 1728144629414,
       "tag": "0002_pink_scrambler",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1728146412634,
+      "tag": "0003_damp_daredevil",
+      "breakpoints": true
     }
   ]
 }

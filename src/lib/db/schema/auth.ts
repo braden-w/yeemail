@@ -4,8 +4,9 @@ import { pgTable, timestamp, text } from "drizzle-orm/pg-core";
 export const users = pgTable("user", {
 	id: text("id").primaryKey(),
         email: text("email").notNull().unique(),
-        hashedPassword: text("hashed_password").notNull(),
+        hashedPassword: text("hashed_password"),
         name: text("name"),
+        google_id: text("google_id").unique().notNull(),
 });
 
 export const sessions = pgTable("session", {
