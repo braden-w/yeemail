@@ -42,14 +42,22 @@ import { format } from "date-fns";
 import {
 	ArrowUpDown,
 	CalendarIcon,
+	CheckIcon,
 	ChevronDown,
 	MailIcon,
 	MoreHorizontal,
+	XIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import type { RawEvent } from "@/lib/db/schema/rawEvents";
 import { nanoid } from "@/lib/utils";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipProvider,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const locations = [
 	"Virtual",
@@ -305,25 +313,49 @@ export const columns: ColumnDef<RawEvent>[] = [
 			const event = row.original;
 
 			return (
-				<DropdownMenu>
-					<DropdownMenuTrigger asChild>
-						<Button variant="ghost" className="h-8 w-8 p-0">
-							<span className="sr-only">Open menu</span>
-							<MoreHorizontal className="h-4 w-4" />
-						</Button>
-					</DropdownMenuTrigger>
-					<DropdownMenuContent align="end">
-						<DropdownMenuLabel>Actions</DropdownMenuLabel>
-						<DropdownMenuItem
-							onClick={() => navigator.clipboard.writeText(event.id)}
-						>
-							Copy event ID
-						</DropdownMenuItem>
-						<DropdownMenuSeparator />
-						<DropdownMenuItem>View event details</DropdownMenuItem>
-						<DropdownMenuItem>Edit event</DropdownMenuItem>
-					</DropdownMenuContent>
-				</DropdownMenu>
+				<div className="flex gap-2">
+					<TooltipProvider>
+						<Tooltip>
+							<TooltipTrigger>
+								<Button variant="ghost" className="h-8 w-8 p-0">
+									<span className="sr-only">Open menu</span>
+									<CheckIcon className="h-4 w-4" />
+								</Button>
+							</TooltipTrigger>
+							<TooltipContent>Accept Suggested Event</TooltipContent>
+						</Tooltip>
+					</TooltipProvider>
+					<TooltipProvider>
+						<Tooltip>
+							<TooltipTrigger>
+								<Button variant="ghost" className="h-8 w-8 p-0">
+									<span className="sr-only">Open menu</span>
+									<XIcon className="h-4 w-4" />
+								</Button>
+							</TooltipTrigger>
+							<TooltipContent>Reject Suggested Event</TooltipContent>
+						</Tooltip>
+					</TooltipProvider>
+					<DropdownMenu>
+						<DropdownMenuTrigger asChild>
+							<Button variant="ghost" className="h-8 w-8 p-0">
+								<span className="sr-only">Open menu</span>
+								<MoreHorizontal className="h-4 w-4" />
+							</Button>
+						</DropdownMenuTrigger>
+						<DropdownMenuContent align="end">
+							<DropdownMenuLabel>Actions</DropdownMenuLabel>
+							<DropdownMenuItem
+								onClick={() => navigator.clipboard.writeText(event.id)}
+							>
+								Copy event ID
+							</DropdownMenuItem>
+							<DropdownMenuSeparator />
+							<DropdownMenuItem>View event details</DropdownMenuItem>
+							<DropdownMenuItem>Edit event</DropdownMenuItem>
+						</DropdownMenuContent>
+					</DropdownMenu>
+				</div>
 			);
 		},
 	},
