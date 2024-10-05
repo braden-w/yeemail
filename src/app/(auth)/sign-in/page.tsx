@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { signInAction } from "@/lib/actions/users";
 import { cn } from "@/lib/utils";
-import { Github, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import Google from "~icons/logos/google";
 import Link from "next/link";
 import { useActionState } from "react";
 
@@ -125,14 +126,17 @@ export function UserAuthForm() {
 					</span>
 				</div>
 			</div>
-			<Button variant="outline" type="button" disabled={pending}>
+			<a
+				className={cn(buttonVariants({ variant: "outline" }))}
+				href="/api/auth/google/login"
+			>
 				{pending ? (
 					<Loader2 className="mr-2 h-4 w-4 animate-spin" />
 				) : (
-					<Github className="mr-2 h-4 w-4" />
+					<Google className="mr-2 h-4 w-4" />
 				)}{" "}
-				GitHub
-			</Button>
+				Google
+			</a>
 			<div className="mt-4 text-center text-muted-foreground text-sm">
 				Don&apos;t have an account yet?{" "}
 				<Link
