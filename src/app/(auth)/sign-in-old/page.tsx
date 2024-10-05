@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useFormState } from "react-dom";
+import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 
 import { signInAction } from "@/lib/actions/users";
@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import AuthFormError from "@/components/auth/AuthFormError";
 
 export default function SignInPage() {
-	const [state, formAction] = useFormState(signInAction, {
+	const [state, formAction, pending] = useActionState(signInAction, {
 		error: "",
 	});
 
@@ -33,7 +33,9 @@ export default function SignInPage() {
 				</Label>
 				<Input type="password" name="password" id="password" required />
 				<br />
-				<SubmitButton />
+				<Button className="w-full" type="submit" disabled={pending}>
+					Sign{pending ? "ing" : ""} in
+				</Button>
 			</form>
 			<div className="mt-4 text-center text-muted-foreground text-sm">
 				Don&apos;t have an account yet?{" "}
@@ -47,12 +49,3 @@ export default function SignInPage() {
 		</main>
 	);
 }
-
-const SubmitButton = () => {
-	const { pending } = useFormStatus();
-	return (
-		<Button className="w-full" type="submit" disabled={pending}>
-			Sign{pending ? "ing" : ""} in
-		</Button>
-	);
-};

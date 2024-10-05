@@ -1,18 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { useFormState } from "react-dom";
-import { useFormStatus } from "react-dom";
+import { useActionState } from "react";
 
 import { signUpAction } from "@/lib/actions/users";
 
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import AuthFormError from "@/components/auth/AuthFormError";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export default function SignUpPage() {
-	const [state, formAction] = useFormState(signUpAction, {
+	const [state, formAction, pending] = useActionState(signUpAction, {
 		error: "",
 	});
 
@@ -31,7 +30,9 @@ export default function SignUpPage() {
 				</Label>
 				<Input type="password" name="password" id="password" required />
 				<br />
-				<SubmitButton />
+				<Button className="w-full" type="submit" disabled={pending}>
+					Sign{pending ? "ing" : ""} up
+				</Button>
 			</form>
 			<div className="mt-4 text-center text-muted-foreground text-sm">
 				Already have an account?{" "}
@@ -42,12 +43,3 @@ export default function SignUpPage() {
 		</main>
 	);
 }
-
-const SubmitButton = () => {
-	const { pending } = useFormStatus();
-	return (
-		<Button className="w-full" type="submit" disabled={pending}>
-			Sign{pending ? "ing" : ""} up
-		</Button>
-	);
-};
