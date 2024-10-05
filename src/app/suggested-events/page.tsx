@@ -247,12 +247,16 @@ export const columns: ColumnDef<SuggestedEvent>[] = [
 	{
 		accessorKey: "start",
 		header: "Start Date",
-		cell: ({ row }) => <div>{format(row.getValue("start"), "PPP")}</div>,
+		cell: ({ row }) => (
+			<div>{format(new Date(row.getValue("start")), "PPP, p")}</div>
+		),
 	},
 	{
 		accessorKey: "end",
 		header: "End Date",
-		cell: ({ row }) => <div>{format(row.getValue("end"), "PPP")}</div>,
+		cell: ({ row }) => (
+			<div>{format(new Date(row.getValue("end")), "PPP, p")}</div>
+		),
 	},
 	{
 		accessorKey: "location",
