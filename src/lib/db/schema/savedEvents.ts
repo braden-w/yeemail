@@ -2,7 +2,7 @@ import { sql } from "drizzle-orm";
 import { text, varchar, timestamp, pgTable } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
-import { rawEvents } from "./rawEvents";
+import { suggestedEvents } from "./suggestedEvents";
 import type { getSavedEvents } from "@/lib/api/savedEvents/queries";
 
 import { nanoid, timestamps } from "@/lib/utils";
@@ -13,8 +13,8 @@ export const savedEvents = pgTable("saved_events", {
 		.$defaultFn(() => nanoid()),
 	title: text("title"),
 	description: text("description"),
-	rawEventId: varchar("raw_event_id", { length: 256 })
-		.references(() => rawEvents.id, { onDelete: "cascade" })
+	suggestedEventId: varchar("raw_event_id", { length: 256 })
+		.references(() => suggestedEvents.id, { onDelete: "cascade" })
 		.notNull(),
 
 	createdAt: timestamp("created_at").notNull().default(sql`now()`),
@@ -28,7 +28,7 @@ export const insertSavedEventSchema =
 	createInsertSchema(savedEvents).omit(timestamps);
 export const insertSavedEventParams = baseSchema
 	.extend({
-		rawEventId: z.coerce.string().min(1),
+		suggestedEventId: z.coerce.string().min(1),
 	})
 	.omit({
 		id: true,
@@ -36,7 +36,7 @@ export const insertSavedEventParams = baseSchema
 
 export const updateSavedEventSchema = baseSchema;
 export const updateSavedEventParams = baseSchema.extend({
-	rawEventId: z.coerce.string().min(1),
+	suggestedEventId: z.coerce.string().min(1),
 });
 export const savedEventIdSchema = baseSchema.pick({ id: true });
 
