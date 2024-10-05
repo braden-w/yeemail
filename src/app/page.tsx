@@ -31,18 +31,17 @@ export default function LandingPage() {
 			<main className="flex-1">
 				<section className="w-full py-6 sm:py-12 md:py-24 lg:py-32 xl:py-48">
 					<div className="container px-4 md:px-6">
-						<div className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px]">
+						<div className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_500px]">
 							<div className="mx-auto aspect-video overflow-hidden rounded-xl bg-neutral-100 object-cover sm:w-full lg:order-last lg:aspect-square dark:bg-neutral-800" />
 							<div className="flex flex-col justify-center space-y-4">
 								<div className="space-y-2">
 									<h1 className="font-bold text-3xl tracking-tighter sm:text-5xl xl:text-6xl/none">
-										The complete platform <br />
-										for building the Web
+										Automate Your Event Extraction from Emails
 									</h1>
 									<p className="max-w-[600px] text-neutral-500 md:text-xl dark:text-neutral-400">
-										Give your team the toolkit to stop configuring and start
-										innovating. Securely build, deploy, and scale the best web
-										experiences.
+										Select a date and let our AI parse your emails to extract
+										events automatically. Save time and never miss an important
+										appointment again.
 									</p>
 								</div>
 								<div className="flex flex-col gap-2 min-[400px]:flex-row">
