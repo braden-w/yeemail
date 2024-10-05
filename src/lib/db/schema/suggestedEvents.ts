@@ -7,7 +7,7 @@ import type { getSuggestedEvents } from "@/lib/api/suggestedEvents/queries";
 
 import { nanoid, timestamps } from "@/lib/utils";
 
-export const suggestedEvents = pgTable("raw_events", {
+export const suggestedEvents = pgTable("suggested_events", {
 	id: varchar("id", { length: 191 })
 		.primaryKey()
 		.$defaultFn(() => nanoid()),
