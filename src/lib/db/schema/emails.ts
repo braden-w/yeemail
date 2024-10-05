@@ -16,6 +16,7 @@ export const emails = pgTable("emails", {
 	sender: text("sender").notNull(),
 	date: text("date").notNull(),
 	userId: varchar("user_id", { length: 256 }).notNull(),
+	links: text("links").array().notNull().default([]),
 
 	createdAt: timestamp("created_at").notNull().default(sql`now()`),
 	updatedAt: timestamp("updated_at").notNull().default(sql`now()`),

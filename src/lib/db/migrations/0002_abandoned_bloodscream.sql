@@ -1,0 +1,1 @@
+ALTER TABLE "emails" ADD COLUMN "links" text[] DEFAULT '{}' NOT NULL;
