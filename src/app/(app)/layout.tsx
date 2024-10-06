@@ -16,15 +16,9 @@ export default async function AppLayout({
 		<main>
 			<TrpcProvider cookies={cookies().toString()}>
 				<div className="flex h-screen flex-col">
-					<header className="sticky top-0 z-50 flex min-h-14 w-full items-center border-border/40 bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60 lg:px-6">
+					<header className="sticky top-0 z-50 flex min-h-14 w-full items-center border-border/40 bg-background/95 px-4 shadow backdrop-blur supports-[backdrop-filter]:bg-background/60 lg:px-6">
 						<Logo />
 						<nav className="ml-auto flex gap-4 sm:gap-6">
-							<Link
-								className="font-medium text-sm underline-offset-4 hover:underline"
-								href="#features"
-							>
-								Features
-							</Link>
 							<Link
 								className="font-medium text-sm underline-offset-4 hover:underline"
 								href="/sign-in"
