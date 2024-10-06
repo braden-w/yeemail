@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, timestamp, varchar } from "drizzle-orm/pg-core";
+import { text, timestamp, varchar, pgTable } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -15,8 +15,9 @@ export const suggestedEvents = pgTable("suggested_events", {
 	description: text("description").notNull(),
 	start: timestamp("start").notNull(),
 	end: timestamp("end"),
-	location: text("location").notNull(),
+	location: text("location"),
 	registrationLink: text("registration_link"),
+	associatedOrganization: text("associated_organization"),
 
 	createdAt: timestamp("created_at").notNull().default(sql`now()`),
 	updatedAt: timestamp("updated_at").notNull().default(sql`now()`),

@@ -1,8 +1,5 @@
 import { db } from "@/lib/db/index";
-import {
-	type CompleteSavedEvent,
-	savedEvents,
-} from "@/lib/db/schema/savedEvents";
+import { type CompleteSavedEvent, savedEvents } from "@/lib/db/schema";
 import {
 	type SuggestedEventId,
 	suggestedEventIdSchema,
@@ -12,8 +9,8 @@ import { eq } from "drizzle-orm";
 
 export const getSuggestedEvents = async () => {
 	const rows = await db.select().from(suggestedEvents);
-	const r = rows;
-	return { suggestedEvents: r };
+	const s = rows;
+	return { suggestedEvents: s };
 };
 
 export const getSuggestedEventById = async (id: SuggestedEventId) => {
@@ -23,8 +20,8 @@ export const getSuggestedEventById = async (id: SuggestedEventId) => {
 		.from(suggestedEvents)
 		.where(eq(suggestedEvents.id, suggestedEventId));
 	if (row === undefined) return {};
-	const r = row;
-	return { suggestedEvent: r };
+	const s = row;
+	return { suggestedEvent: s };
 };
 
 export const getSuggestedEventByIdWithSavedEvents = async (

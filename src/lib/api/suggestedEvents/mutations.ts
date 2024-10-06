@@ -15,11 +15,11 @@ export const createSuggestedEvent = async (
 ) => {
 	const newSuggestedEvent = insertSuggestedEventSchema.parse(suggestedEvent);
 	try {
-		const [r] = await db
+		const [s] = await db
 			.insert(suggestedEvents)
 			.values(newSuggestedEvent)
 			.returning();
-		return { suggestedEvent: r };
+		return { suggestedEvent: s };
 	} catch (err) {
 		const message = (err as Error).message ?? "Error, please try again";
 		console.error(message);
@@ -34,12 +34,12 @@ export const updateSuggestedEvent = async (
 	const { id: suggestedEventId } = suggestedEventIdSchema.parse({ id });
 	const newSuggestedEvent = updateSuggestedEventSchema.parse(suggestedEvent);
 	try {
-		const [r] = await db
+		const [s] = await db
 			.update(suggestedEvents)
 			.set({ ...newSuggestedEvent, updatedAt: new Date() })
 			.where(eq(suggestedEvents.id, suggestedEventId!))
 			.returning();
-		return { suggestedEvent: r };
+		return { suggestedEvent: s };
 	} catch (err) {
 		const message = (err as Error).message ?? "Error, please try again";
 		console.error(message);
@@ -50,11 +50,11 @@ export const updateSuggestedEvent = async (
 export const deleteSuggestedEvent = async (id: SuggestedEventId) => {
 	const { id: suggestedEventId } = suggestedEventIdSchema.parse({ id });
 	try {
-		const [r] = await db
+		const [s] = await db
 			.delete(suggestedEvents)
 			.where(eq(suggestedEvents.id, suggestedEventId!))
 			.returning();
-		return { suggestedEvent: r };
+		return { suggestedEvent: s };
 	} catch (err) {
 		const message = (err as Error).message ?? "Error, please try again";
 		console.error(message);
