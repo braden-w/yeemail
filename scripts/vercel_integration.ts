@@ -72,23 +72,20 @@ registration_link: null
 Ensure that your output strictly follows the format specified above, as it will be parsed programmatically.
 `;
 
-	const { object } = await generateObject({
+	const { object: events } = await generateObject({
 		model: groq("llama-3.1-70b-versatile"),
+		output: "array",
 		schema: z.object({
-			events: z.array(
-				z.object({
-					name: z.string(),
-					sender_org: z.string(),
-					location: z.string(),
-					start_time: z.string(),
-					end_time: z.string(),
-					description: z.array(z.string()),
-					registration_link: z.string().url().nullable(),
-				}),
-			),
+			name: z.string(),
+			sender_org: z.string(),
+			location: z.string(),
+			start_time: z.string(),
+			end_time: z.string(),
+			description: z.array(z.string()),
+			registration_link: z.string().url().nullable(),
 		}),
 		prompt: plaintext_prompt,
 	});
 
-	return object.events;
+	return events;
 }
