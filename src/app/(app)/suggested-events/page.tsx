@@ -115,13 +115,11 @@ export const columns: ColumnDef<SuggestedEvent>[] = [
 			const event = row.original;
 
 			const utils = trpc.useUtils();
-			const router = useRouter();
 
 			const { mutate: acceptSuggestedEvent, isLoading: isAccepting } =
 				trpc.suggestedEvents.acceptSuggestedEvent.useMutation({
 					onSuccess: async (data) => {
 						await utils.suggestedEvents.getPendingSuggestedEvents.invalidate();
-						router.refresh();
 						toast.success("Accepted Event!");
 					},
 				});
@@ -130,7 +128,6 @@ export const columns: ColumnDef<SuggestedEvent>[] = [
 				trpc.suggestedEvents.rejectSuggestedEvent.useMutation({
 					onSuccess: async (data) => {
 						await utils.suggestedEvents.getPendingSuggestedEvents.invalidate();
-						router.refresh();
 						toast.success("Rejected Event!");
 					},
 				});
