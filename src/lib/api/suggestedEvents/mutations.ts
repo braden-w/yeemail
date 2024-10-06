@@ -69,27 +69,35 @@ export const acceptSuggestedEvent = async (id: SuggestedEventId) => {
 	const { session } = await getUserAuth();
 	const { id: suggestedEventId } = suggestedEventIdSchema.parse({ id });
 	try {
-		const [s] = await db
-			.update(suggestedEvents)
-			.set({ status: "approved" })
-			.where(eq(suggestedEvents.id, suggestedEventId));
-		const newSuggestedEvent = await db.query.suggestedEvents.findFirst({
-			where: eq(suggestedEvents.id, suggestedEventId),
-		});
-		if (!newSuggestedEvent) {
-			throw new Error("Suggested event not found");
-		}
-		const [savedEvent] = await db
-			.insert(savedEvents)
-			.values({
-				...newSuggestedEvent,
-				id: nanoid(),
-				userId: session?.user.id!,
-				suggestedEventId,
-			})
-			.returning();
+		const result = await db.transaction(async (tx) => {
+			await tx
+				.update(suggestedEvents)
+				.set({ status: "approved" })
+				.where(eq(suggestedEvents.id, suggestedEventId));
 
-		return { suggestedEvent: s, savedEvent };
+			const [updatedSuggestedEvent] = await tx
+				.select()
+				.from(suggestedEvents)
+				.where(eq(suggestedEvents.id, suggestedEventId));
+
+			if (!updatedSuggestedEvent) {
+				throw new Error("Suggested event not found");
+			}
+
+			const [savedEvent] = await tx
+				.insert(savedEvents)
+				.values({
+					...updatedSuggestedEvent,
+					id: nanoid(),
+					userId: session?.user.id!,
+					suggestedEventId,
+				})
+				.returning();
+
+			return { suggestedEvent: updatedSuggestedEvent, savedEvent };
+		});
+
+		return result;
 	} catch (err) {
 		const message = (err as Error).message ?? "Error, please try again";
 		console.error(message);
