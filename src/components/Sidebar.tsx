@@ -4,7 +4,6 @@ import SidebarItems from "./SidebarItems";
 import { Avatar, AvatarFallback } from "./ui/avatar";
 
 import { type AuthSession, getUserAuth } from "@/lib/auth/utils";
-import { Logo } from "./Logo";
 
 const Sidebar = async () => {
 	const session = await getUserAuth();
