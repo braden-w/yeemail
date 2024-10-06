@@ -5,7 +5,7 @@ import { generateObject } from "ai";
 import { parseDate } from "chrono-node";
 import { z } from "zod";
 
-async function extractEventsFromEmail(email: Email) {
+export async function extractEventsFromEmail(email: Email) {
 	const groq = createGroq({
 		baseURL: "https://api.groq.com/openai/v1",
 		apiKey: env.GROQ_API_KEY,
