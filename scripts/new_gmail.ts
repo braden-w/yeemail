@@ -6,13 +6,13 @@ import {
 
 type GmailMessage = gmail_v1.Schema$Message;
 
-interface FormattedEmail {
+type FormattedEmail = {
 	subject: string;
 	content: string;
 	sender: string;
 	receivedAt: string;
 	links: string;
-}
+};
 
 export async function getGmailEmails({
 	token,
@@ -120,14 +120,12 @@ export async function getGmailEmails({
 
 		const emails = await Promise.all(
 			messages.map(async (msg) => {
-				if (msg.id) {
-					const emailResponse = await gmail.users.messages.get({
-						userId: "me",
-						id: msg.id,
-					});
-					return formatEmailJSON(emailResponse.data);
-				}
-				return null;
+				if (!msg.id) return null;
+				const emailResponse = await gmail.users.messages.get({
+					userId: "me",
+					id: msg.id,
+				});
+				return formatEmailJSON(emailResponse.data);
 			}),
 		);
 
