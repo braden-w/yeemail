@@ -1,7 +1,8 @@
+import type { Email } from "@/lib/db/schema/emails";
 import { createOpenAI as createGroq } from "@ai-sdk/openai";
 import { generateObject } from "ai";
+import { parseDate } from "chrono-node";
 import { z } from "zod";
-import type { Email } from "@/lib/db/schema/emails";
 
 const groq = createGroq({
 	baseURL: "https://api.groq.com/openai/v1",
@@ -72,7 +73,7 @@ registration_link: null
 Ensure that your output strictly follows the format specified above, as it will be parsed programmatically.
 `;
 
-	const { object: events } = await generateObject({
+	const { object } = await generateObject({
 		model: groq("llama-3.1-70b-versatile"),
 		output: "array",
 		schema: z.object({
@@ -87,5 +88,10 @@ Ensure that your output strictly follows the format specified above, as it will 
 		prompt: plaintext_prompt,
 	});
 
+	const events = object.map((event) => ({
+		...event,
+		start_time: parseDate(event.start_time),
+		end_time: parseDate(event.end_time),
+	}));
 	return events;
 }
