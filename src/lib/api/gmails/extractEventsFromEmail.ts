@@ -1,11 +1,12 @@
-import type { Email } from "@/lib/db/schema/emails";
+import { NewSuggestedEvent } from "@/lib/db/schema";
+import type { NewEmail } from "@/lib/db/schema/emails";
 import { env } from "@/lib/env.mjs";
 import { createOpenAI as createGroq } from "@ai-sdk/openai";
 import { generateObject } from "ai";
 import { parseDate } from "chrono-node";
 import { z } from "zod";
 
-export async function extractEventsFromEmail(email: Email) {
+export async function extractEventsFromEmail(email: NewEmail) {
 	const groq = createGroq({
 		baseURL: "https://api.groq.com/openai/v1",
 		apiKey: env.GROQ_API_KEY,
@@ -53,7 +54,7 @@ sender_org: [Organization or person's name or "N/A"]
 location: [Location or "N/A"]
 start_time: [Relevant excerpt for start time or "N/A"]
 end_time: [Relevant excerpt for end time or "N/A"]
-description: [Array of relevant details]
+description: [Description of the event with relevant details]
 registration_link: [Registration link or null if not mentioned]
 </event>
 
@@ -67,7 +68,7 @@ sender_org: "N/A"
 location: "N/A"
 start_time: "N/A"
 end_time: "N/A"
-description: []
+description: "N/A"
 registration_link: null
 </event>
 
@@ -83,16 +84,19 @@ Ensure that your output strictly follows the format specified above, as it will 
 			location: z.string(),
 			start_time: z.string(),
 			end_time: z.string(),
-			description: z.array(z.string()),
+			description: z.string(),
 			registration_link: z.string().url().nullable(),
 		}),
 		prompt: plaintext_prompt,
 	});
 
-	const events = object.map((event) => ({
-		...event,
-		start_time: parseDate(event.start_time),
-		end_time: parseDate(event.end_time),
-	}));
+	const events = object
+		.map((event): NewSuggestedEvent & { start: Date | null } => ({
+			...event,
+			title: event.name,
+			start: parseDate(event.start_time),
+			end: parseDate(event.end_time),
+		}))
+		.filter((event): event is NewSuggestedEvent => event.start !== null);
 	return events;
 }
