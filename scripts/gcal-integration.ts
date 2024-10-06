@@ -59,16 +59,15 @@ async function addEventsToCalendar(
 	const calendar = google.calendar({ version: "v3", auth: oauth2Client });
 
 	// Use map to create an array of promises for event creation
-	const createdEventsPromises = events.map(async (description) => {
+	const createdEventsPromises = events.map(async (e) => {
 		const event = {
-			summary: description.title,
-			location: description.location ?? undefined,
-			description: description.description,
-			start: { dateTime: description.start.toISOString() },
+			summary: e.title,
+			location: e.location,
+			description: e.description,
+			start: { dateTime: e.start.toISOString() },
 			end: {
 				dateTime: (
-					description.end ??
-					new Date(description.start.getTime() + 60 * 60 * 1000)
+					e.end ?? new Date(e.start.getTime() + 60 * 60 * 1000)
 				).toISOString(),
 			},
 			status: "tentative",
