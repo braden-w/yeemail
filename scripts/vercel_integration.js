@@ -27,7 +27,7 @@ Follow these steps:
 
 1. Carefully read the email content.
 
-2. Identify any mentions of events or meetings. Look for keywords such as "meeting", "event", "conference", "appointment", etc.
+2. Identify any mentions of events or meetings. Look for keywords such as "meeting", "event", "conference", "appointment", "party", "invited", etc.
 
 3. For each event identified, extract the following information:
    - Event Name
@@ -47,8 +47,7 @@ Follow these steps:
 
 <event>
 name: [Event name or "N/A"]
-organization: [Organization or null if not mentioned]
-sender: [Sender's name or email address]
+sender_org: [Organization or person's name or "N/A"]
 location: [Location or "N/A"]
 start_time: [Relevant excerpt for start time or "N/A"]
 end_time: [Relevant excerpt for end time or "N/A"]
@@ -62,8 +61,7 @@ Remember, if there are no events mentioned in the email, your output should be:
 
 <event>
 name: "N/A"
-organization: "null"
-sender: [Sender's name or email address]
+sender_org: "N/A"
 location: "N/A"
 start_time: "N/A"
 end_time: "N/A"
@@ -75,20 +73,21 @@ Ensure that your output strictly follows the format specified above, as it will 
 `;
 
 const { object } = await generateObject({
-  model: groq('llama-3.1-70b-versatile'),
-  schema: z.object({
-    event: z.object({
-      name: z.string(), 
-      organization: z.string().nullable(),
-      sender: z.string(),
-      location: z.string(),
-      start_time: z.string(),
-      end_time: z.string(),
-      description: z.array(z.string()),
-      registration_link: z.string().url()
+    model: groq('llama-3.1-70b-versatile'),
+    schema: z.object({
+        events: z.array(
+            z.object({
+                name: z.string(),
+                sender_org: z.string(),
+                location: z.string(),
+                start_time: z.string(),
+                end_time: z.string(),
+                description: z.array(z.string()),
+                registration_link: z.string().url()
+            })
+        )
     }),
-  }),
-  prompt: plaintext_prompt,
+    prompt: plaintext_prompt,
 });
 
 console.log(object);
