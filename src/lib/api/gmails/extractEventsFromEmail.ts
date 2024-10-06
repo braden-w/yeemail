@@ -62,7 +62,7 @@ sender_org: [Organization or person's name or "N/A"]
 location: [Location or "N/A"]
 start_time: [Relevant excerpt for start time or "N/A"]
 end_time: [Relevant excerpt for end time or "N/A"]
-description: [Description of the event with relevant details]
+description: [Description of the event with relevant details or "N/A"]
 registration_link: [Registration link or null if not mentioned]
 </event>
 

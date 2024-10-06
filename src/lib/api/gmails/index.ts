@@ -11,7 +11,7 @@ import { getGmailsAfterDate } from "./getGmailsAfterDate";
 
 export async function processGmailsAfterDate({
 	token,
-	maxResults = 5,
+	maxResults = 75,
 	date,
 }: {
 	token: string;
@@ -29,17 +29,20 @@ export async function processGmailsAfterDate({
 	// const extractedEvents: NewSuggestedEvent[] = [];
 	const insertedEvents: NewSuggestedEvent[] = [];
 	for (const email of newEmails) {
-		const events = await extractEventsFromEmail(email);
-		if (events.length === 0) {
-			continue;
+		try {
+			const extractedEvents = await extractEventsFromEmail(email);
+			console.log(extractedEvents);
+			if (extractedEvents.length === 0) {
+				continue;
+			}
+			const ie = await db
+				.insert(suggestedEvents)
+				.values(extractedEvents)
+				.returning();
+			insertedEvents.push(...ie);
+		} catch (error) {
+			console.error(error);
 		}
-		// extractedEvents.push(...events);
-		const ie = await db.insert(suggestedEvents).values(events).returning();
-		insertedEvents.push(...ie);
 	}
-	// const insertedEvents = await db
-	// 	.insert(suggestedEvents)
-	// 	.values(extractedEvents)
-	// 	.returning();
 	return { emails: insertedEmails, events: insertedEvents };
 }
