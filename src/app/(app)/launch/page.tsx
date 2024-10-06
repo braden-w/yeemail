@@ -7,28 +7,37 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from "@/components/ui/popover";
+import { trpc } from "@/lib/trpc/client";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export default function LandingPage() {
 	const [date, setDate] = useState<Date>();
-	const [isSubmitting, setIsSubmitting] = useState(false);
-
-	const handleSubmit = () => {
-		if (!date) {
-			alert("Please select a date before submitting.");
-			return;
-		}
-		setIsSubmitting(true);
-		// Simulating API call
-		setTimeout(() => {
-			alert(`Job created to parse emails from ${format(date, "PPP")} onwards.`);
-			setIsSubmitting(false);
-		}, 2000);
-	};
+	const router = useRouter();
+	const { mutate: launchEmails, isLoading: isLaunchingEmails } =
+		trpc.launch.launchEmails.useMutation({
+			onSuccess: (res) => {
+				toast.success(`Processed ${res.emails.length} emails!`, {
+					description: `${res.events.length} events extracted!`,
+					action: {
+						label: "View Suggested Events",
+						onClick: () => {
+							router.push("/suggested-events");
+						},
+					},
+				});
+			},
+			onError: (err) => {
+				toast.error("Error processing emails", {
+					description: err.message,
+				});
+			},
+		});
 
 	return (
 		<div className="flex min-h-screen flex-col">
@@ -94,10 +103,16 @@ export default function LandingPage() {
 									</Popover>
 									<Button
 										className="w-full sm:w-auto"
-										onClick={handleSubmit}
-										disabled={!date || isSubmitting}
+										onClick={() => {
+											if (!date) {
+												alert("Please select a date before submitting.");
+												return;
+											}
+											return launchEmails({ startDate: date });
+										}}
+										disabled={!date || isLaunchingEmails}
 									>
-										{isSubmitting ? "Processing..." : "Parse Emails"}
+										{isLaunchingEmails ? "Processing..." : "Launch Emails"}
 									</Button>
 								</div>
 							</div>

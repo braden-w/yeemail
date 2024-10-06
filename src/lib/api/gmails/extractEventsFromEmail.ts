@@ -1,26 +1,37 @@
+import type { NewSuggestedEvent } from "@/lib/db/schema";
+import type { NewEmail } from "@/lib/db/schema/emails";
+import { env } from "@/lib/env.mjs";
 import { createOpenAI as createGroq } from "@ai-sdk/openai";
 import { generateObject } from "ai";
+import { parseDate } from "chrono-node";
 import { z } from "zod";
-const fs = require("node:fs");
 
-const groq = createGroq({
-	baseURL: "https://api.groq.com/openai/v1",
-	apiKey: process.env.GROQ_API_KEY,
-});
+const MODEL_CHAR_LIMIT = 32000; // Adjust this value based on the model's limit
 
-const emailContent = fs.readFileSync('content.txt', 'utf-8');
-const emailMetadata = fs.readFileSync('metadata.txt', 'utf-8');
-const plaintext_prompt = `
+function truncateContent(content: string, limit: number): string {
+	if (content.length <= limit) return content;
+	return `${content.slice(0, limit)}... [Content truncated due to length]`;
+}
+
+export async function extractEventsFromEmail(email: NewEmail) {
+	const groq = createGroq({
+		baseURL: "https://api.groq.com/openai/v1",
+		apiKey: env.GROQ_API_KEY,
+	});
+
+	const { content, ...metadata } = email;
+	const truncatedContent = truncateContent(content, MODEL_CHAR_LIMIT);
+	const plaintext_prompt = `
 You will be given an email with metadata and content. Your task is to read the content and identify any events or meetings mentioned, then extract information about these events. Do not attempt to calculate dates or times. Instead, include relevant excerpts from the original text for dates and times. These will be processed by an external library.
 
 Here is the email metadata:
 <email_metadata>
-${ emailMetadata }
+${JSON.stringify(metadata)}
 </email_metadata>
 
 And here is the email content:
 <email_content>
-${ emailContent }
+${truncatedContent}
 </email_content>
 
 Follow these steps:
@@ -51,7 +62,7 @@ sender_org: [Organization or person's name or "N/A"]
 location: [Location or "N/A"]
 start_time: [Relevant excerpt for start time or "N/A"]
 end_time: [Relevant excerpt for end time or "N/A"]
-description: [Array of relevant details]
+description: [Description of the event with relevant details]
 registration_link: [Registration link or null if not mentioned]
 </event>
 
@@ -65,29 +76,35 @@ sender_org: "N/A"
 location: "N/A"
 start_time: "N/A"
 end_time: "N/A"
-description: []
+description: "N/A"
 registration_link: null
 </event>
 
 Ensure that your output strictly follows the format specified above, as it will be parsed programmatically.
 `;
 
-const { object } = await generateObject({
-    model: groq('llama-3.1-70b-versatile'),
-    schema: z.object({
-        events: z.array(
-            z.object({
-                name: z.string(),
-                sender_org: z.string(),
-                location: z.string(),
-                start_time: z.string(),
-                end_time: z.string(),
-                description: z.array(z.string()),
-                registration_link: z.string().url()
-            })
-        )
-    }),
-    prompt: plaintext_prompt,
-});
+	const { object } = await generateObject({
+		model: groq("llama-3.1-70b-versatile"),
+		output: "array",
+		schema: z.object({
+			name: z.string(),
+			sender_org: z.string(),
+			location: z.string(),
+			start_time: z.string(),
+			end_time: z.string(),
+			description: z.string(),
+			registration_link: z.string().url().nullable(),
+		}),
+		prompt: plaintext_prompt,
+	});
 
-console.log(object);
+	const events = object
+		.map((event): NewSuggestedEvent & { start: Date | null } => ({
+			...event,
+			title: event.name,
+			start: event.start_time !== "N/A" ? parseDate(event.start_time) : null,
+			end: event.end_time !== "N/A" ? parseDate(event.end_time) : null,
+		}))
+		.filter((event): event is NewSuggestedEvent => event.start !== null);
+	return events;
+}

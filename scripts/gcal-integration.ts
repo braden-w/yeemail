@@ -1,9 +1,9 @@
 import { db } from "@/lib/db";
+import type { SuggestedEvent } from "@/lib/db/schema";
 import { createOpenAI as createGroq } from "@ai-sdk/openai";
 import { generateObject } from "ai";
-import { z } from "zod";
 import { google } from "googleapis";
-import type { SuggestedEvent } from "@/lib/db/schema";
+import { z } from "zod";
 
 const allEvents = await db.query.suggestedEvents.findMany();
 

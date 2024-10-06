@@ -1,6 +1,6 @@
+import { db } from "@/lib/db";
 import { createOpenAI as createGroq } from "@ai-sdk/openai";
 import { generateObject } from "ai";
-import { db } from "@/lib/db";
 import { z } from "zod";
 const fs = require("node:fs");
 
@@ -17,7 +17,7 @@ You will be given a list of events. Your task is to create a summary and descrip
 
 Here is the list of events:
 <event_list>
-${ JSON.stringify(allEvents) }
+${JSON.stringify(allEvents)}
 </event_list>
 
 Follow these steps:
@@ -30,23 +30,22 @@ Follow these steps:
 `;
 
 const { object } = await generateObject({
-    model: groq('llama-3.1-70b-versatile'),
-    output: 'array',
-    schema: z.object({
-                summary: z.string(),
-                description: z.string(),
-                location: z.string(),
-                start: z.object({
-                    dateTime: z.string(),
-                    timeZone: z.string(),
-                }),
-                end: z.object({
-                    dateTime: z.string(),
-                    timeZone: z.string(),
-                }),
-            }),
-    prompt: plaintext_prompt,
+	model: groq("llama-3.1-70b-versatile"),
+	output: "array",
+	schema: z.object({
+		summary: z.string(),
+		description: z.string(),
+		location: z.string(),
+		start: z.object({
+			dateTime: z.string(),
+			timeZone: z.string(),
+		}),
+		end: z.object({
+			dateTime: z.string(),
+			timeZone: z.string(),
+		}),
+	}),
+	prompt: plaintext_prompt,
 });
 
 console.log(object);
-
