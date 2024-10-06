@@ -1,6 +1,7 @@
 import { getUserAuth } from "@/lib/auth/utils";
 import { db } from "@/lib/db";
 import { type NewEmail, emails, suggestedEvents } from "@/lib/db/schema";
+import { Effect } from "effect";
 import { extractEventsFromEmail } from "./extractEventsFromEmail";
 import { getGmailsAfterDate } from "./getGmailsAfterDate";
 
@@ -22,7 +23,12 @@ export async function processGmailsAfterDate({
 	}));
 	const insertedEmails = await db.insert(emails).values(newEmails).returning();
 	const extractedEvents = (
-		await Promise.all(newEmails.map(extractEventsFromEmail))
+		await Effect.all(
+			newEmails.map((email) =>
+				Effect.tryPromise(() => extractEventsFromEmail(email)),
+			),
+			{ concurrency: 10 },
+		).pipe(Effect.runPromise)
 	).flat();
 	const insertedEvents = await db
 		.insert(suggestedEvents)
