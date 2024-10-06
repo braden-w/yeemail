@@ -6,6 +6,13 @@ import { generateObject } from "ai";
 import { parseDate } from "chrono-node";
 import { z } from "zod";
 
+const MODEL_CHAR_LIMIT = 32000; // Adjust this value based on the model's limit
+
+function truncateContent(content: string, limit: number): string {
+	if (content.length <= limit) return content;
+	return `${content.slice(0, limit)}... [Content truncated due to length]`;
+}
+
 export async function extractEventsFromEmail(email: NewEmail) {
 	const groq = createGroq({
 		baseURL: "https://api.groq.com/openai/v1",
@@ -13,6 +20,7 @@ export async function extractEventsFromEmail(email: NewEmail) {
 	});
 
 	const { content, ...metadata } = email;
+	const truncatedContent = truncateContent(content, MODEL_CHAR_LIMIT);
 	const plaintext_prompt = `
 You will be given an email with metadata and content. Your task is to read the content and identify any events or meetings mentioned, then extract information about these events. Do not attempt to calculate dates or times. Instead, include relevant excerpts from the original text for dates and times. These will be processed by an external library.
 
@@ -23,7 +31,7 @@ ${JSON.stringify(metadata)}
 
 And here is the email content:
 <email_content>
-${content}
+${truncatedContent}
 </email_content>
 
 Follow these steps:
@@ -94,8 +102,8 @@ Ensure that your output strictly follows the format specified above, as it will 
 		.map((event): NewSuggestedEvent & { start: Date | null } => ({
 			...event,
 			title: event.name,
-			start: parseDate(event.start_time),
-			end: parseDate(event.end_time),
+			start: event.start_time !== "N/A" ? parseDate(event.start_time) : null,
+			end: event.end_time !== "N/A" ? parseDate(event.end_time) : null,
 		}))
 		.filter((event): event is NewSuggestedEvent => event.start !== null);
 	return events;
