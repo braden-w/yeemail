@@ -1,11 +1,12 @@
-/**
- * v0 by Vercel.
- * @see https://v0.dev/t/PmwTvNfrVgf
- * Documentation: https://v0.dev/docs#integrating-generated-code-into-your-nextjs-app
- */
+import { getUserAuth } from "@/lib/auth/utils";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
-export default function LandingPage() {
+export default async function LandingPage() {
+	const { session } = await getUserAuth();
+	if (session) {
+		redirect("/dashboard");
+	}
 	return (
 		<div className="flex min-h-screen flex-col">
 			<header className="flex h-14 items-center px-4 lg:px-6">
