@@ -27,6 +27,28 @@ export const createEmail = async (email: NewEmailParams) => {
 	}
 };
 
+export const createMultipleEmails = async (all_emails: NewEmailParams[]) => {
+	// const { session } = await getUserAuth();
+	const newEmails = [];
+	for (const email of all_emails) {
+		console.log(email);
+		const newEmail = insertEmailSchema.parse({
+			...email,
+			userId: '2cfr32gdmbpup75',
+		});
+		newEmails.push(newEmail);
+	}
+	try {
+		const [e] = await db.insert(emails).values(newEmails).returning();
+		return { count: e.length };
+	} catch (err) {
+		const message = (err as Error).message ?? "Error, please try again";
+		console.error(message);
+		throw { error: message };
+	}
+}
+
+
 export const updateEmail = async (id: EmailId, email: UpdateEmailParams) => {
 	const { session } = await getUserAuth();
 	const { id: emailId } = emailIdSchema.parse({ id });
