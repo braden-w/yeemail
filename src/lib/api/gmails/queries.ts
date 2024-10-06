@@ -3,21 +3,28 @@ import { type gmail_v1, google } from "googleapis";
 
 type GmailMessage = gmail_v1.Schema$Message;
 
-export async function getGmailEmails({
+export async function getGmailsAfterDate({
 	token,
 	maxResults = 75,
-}: { token: string; maxResults?: number }): Promise<NewEmailParams[]> {
+	date,
+}: {
+	token: string;
+	maxResults?: number;
+	date: Date;
+}): Promise<NewEmailParams[]> {
 	const oauth2Client = new google.auth.OAuth2();
 	oauth2Client.setCredentials({ access_token: token });
 
 	const gmail = google.gmail({ version: "v1", auth: oauth2Client });
 
 	try {
+		const formattedDate = date.toISOString().split("T")[0].replace(/-/g, "/");
 		const {
 			data: { messages },
 		} = await gmail.users.messages.list({
 			userId: "me",
 			maxResults,
+			q: `after:${formattedDate}`,
 		});
 
 		if (!messages) {
