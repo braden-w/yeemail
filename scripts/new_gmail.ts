@@ -4,11 +4,8 @@ import {
 } from "src/lib/api/emails/mutations";
 import { z } from "zod";
 
-// Usage
-const userToken = process.env.USER_KEY;
-
 // Helper function to decode base64 URL-safe encoding
-function decodeBase64(data) {
+function decodeBase64(data: string) {
 	try {
 		return atob(data.replace(/_/g, "/").replace(/-/g, "+"));
 	} catch (e) {
