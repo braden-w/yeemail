@@ -1,0 +1,8 @@
+{
+        "subject": "Big Chill Hangout \u2013 You're in!",
+        "sender": "Joey <joey@weekendwarriors.com>",
+        "dateTime": "2024-10-06T18:30:00.000Z",
+        "links": [
+            "http://chillparty.com/rsvp"
+        ]
+    }
