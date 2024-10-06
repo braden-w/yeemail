@@ -62,7 +62,10 @@ export async function getGmailEmails({
 	}
 }
 
-function getContentAndURL(message: GmailMessage): [string, string[]] {
+function getContentAndURL(message: GmailMessage): {
+	rawContent: string;
+	links: string[];
+} {
 	// HTML scraper function to search for hyperlinks
 	function scrapeHyperlinks(html: string): string[] {
 		const urlRegex = /<a\s+(?:[^>]*?\s+)?href=(["'])(.*?)\1/gi;
@@ -75,16 +78,17 @@ function getContentAndURL(message: GmailMessage): [string, string[]] {
 		return links;
 	}
 	// Helper function to extract raw message parts (text/plain or text/html)
-	function getMessageBody(
-		payload: gmail_v1.Schema$MessagePart | undefined,
-	): [string, string] {
+	function getMessageBody(payload: gmail_v1.Schema$MessagePart | undefined): {
+		body: string;
+		html: string;
+	} {
 		let body = "";
 		let html = "";
 		if (payload?.parts) {
 			for (const part of payload.parts) {
 				if (part.parts) {
 					// Recursively extract parts if there are nested parts
-					const [nestedBody, nestedHtml] = getMessageBody(part);
+					const { body: nestedBody, html: nestedHtml } = getMessageBody(part);
 					body += nestedBody;
 					html += nestedHtml;
 				} else if (part.mimeType === "text/plain") {
@@ -101,13 +105,13 @@ function getContentAndURL(message: GmailMessage): [string, string[]] {
 			// If there's no 'parts', just grab the data from the payload body
 			body = decodeBase64(payload.body.data);
 		}
-		return [body, html];
+		return { body, html };
 	}
 	// Get the payload of the message
 	const payload = message.payload;
-	const [rawBody, rawHTML] = getMessageBody(payload);
-	const urls = scrapeHyperlinks(rawHTML);
-	return [rawBody, urls];
+	const { body, html } = getMessageBody(payload);
+	const urls = scrapeHyperlinks(html);
+	return { rawContent: body, links: urls };
 }
 
 interface FormattedEmail {
@@ -124,7 +128,7 @@ function formatEmailJSON(emails: GmailMessage[]): FormattedEmail[] {
 			email.payload?.headers?.find((header) => header.name === name)?.value ??
 			"";
 
-		const [rawContent, links] = getContentAndURL(email);
+		const { rawContent, links } = getContentAndURL(email);
 
 		return {
 			subject: getHeader("Subject"),
