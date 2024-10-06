@@ -18,7 +18,7 @@ export default function SavedEventList({
 	return (
 		<ul>
 			{s.savedEvents.map((savedEvent) => (
-				<SavedEvent savedEvent={savedEvent} key={savedEvent.savedEvent.id} />
+				<SavedEvent savedEvent={savedEvent} key={savedEvent.id} />
 			))}
 		</ul>
 	);
@@ -28,9 +28,9 @@ const SavedEvent = ({ savedEvent }: { savedEvent: CompleteSavedEvent }) => {
 	return (
 		<li className="my-2 flex justify-between">
 			<div className="w-full">
-				<div>{savedEvent.savedEvent.title}</div>
+				<div>{savedEvent.title}</div>
 			</div>
-			<SavedEventModal savedEvent={savedEvent.savedEvent} />
+			<SavedEventModal savedEvent={savedEvent} />
 		</li>
 	);
 };
