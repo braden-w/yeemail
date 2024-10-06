@@ -108,17 +108,18 @@ export const acceptSuggestedEvent = async (id: SuggestedEventId) => {
 
 export const bulkAcceptSuggestedEvents = async (ids: SuggestedEventId[]) => {
 	const { session } = await getUserAuth();
+	const parsedIds = z.array(suggestedEventIdSchema.shape.id).parse(ids);
 	try {
 		const result = await db.transaction(async (tx) => {
 			await tx
 				.update(suggestedEvents)
 				.set({ status: "approved" })
-				.where(inArray(suggestedEvents.id, ids));
+				.where(inArray(suggestedEvents.id, parsedIds));
 
 			const updatedSuggestedEvents = await tx
 				.select()
 				.from(suggestedEvents)
-				.where(inArray(suggestedEvents.id, ids));
+				.where(inArray(suggestedEvents.id, parsedIds));
 
 			const insertedSavedEvents = await tx.insert(savedEvents).values(
 				updatedSuggestedEvents.map((event) => ({
@@ -160,10 +161,7 @@ export const rejectSuggestedEvent = async (id: SuggestedEventId) => {
 };
 
 export const bulkRejectSuggestedEvents = async (ids: SuggestedEventId[]) => {
-	const parsedIds = z
-		.array(suggestedEventIdSchema)
-		.parse(ids.map((id) => ({ id })))
-		.map(({ id }) => id);
+	const parsedIds = z.array(suggestedEventIdSchema.shape.id).parse(ids);
 
 	try {
 		await db

@@ -207,7 +207,25 @@ export function DataTableDemo() {
 	const [sorting, setSorting] = useState<SortingState>([]);
 	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 	const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
-	const [rowSelection, setRowSelection] = useState({});
+	const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
+
+	const utils = trpc.useUtils();
+
+	const { mutate: bulkAcceptSuggestedEvents, isLoading: isAcceptingBulk } =
+		trpc.suggestedEvents.bulkAcceptSuggestedEvents.useMutation({
+			onSuccess: async () => {
+				await utils.suggestedEvents.getPendingSuggestedEvents.invalidate();
+				toast.success("Accepted selected events!");
+			},
+		});
+
+	const { mutate: bulkRejectSuggestedEvents, isLoading: isRejectingBulk } =
+		trpc.suggestedEvents.bulkRejectSuggestedEvents.useMutation({
+			onSuccess: async () => {
+				await utils.suggestedEvents.getPendingSuggestedEvents.invalidate();
+				toast.success("Rejected selected events!");
+			},
+		});
 
 	const table = useReactTable({
 		data: data?.pendingSuggestedEvents ?? [],
@@ -226,7 +244,10 @@ export function DataTableDemo() {
 			columnVisibility,
 			rowSelection,
 		},
+		getRowId: (row) => row.id,
 	});
+
+	const selectedEventIds = Object.keys(rowSelection);
 
 	return (
 		<div className="w-full">
@@ -239,6 +260,54 @@ export function DataTableDemo() {
 					}
 					className="max-w-sm"
 				/>
+				{selectedEventIds.length > 0 && (
+					<div className="ml-4 flex gap-2">
+						<TooltipProvider>
+							<Tooltip>
+								<TooltipTrigger>
+									<Button
+										variant="outline"
+										size="sm"
+										onClick={() =>
+											bulkAcceptSuggestedEvents({ ids: selectedEventIds })
+										}
+										disabled={isAcceptingBulk}
+									>
+										{isAcceptingBulk ? (
+											<Loader2 className="h-4 w-4 animate-spin" />
+										) : (
+											<CheckIcon className="mr-2 h-4 w-4" />
+										)}
+										Accept All
+									</Button>
+								</TooltipTrigger>
+								<TooltipContent>Accept all selected events</TooltipContent>
+							</Tooltip>
+						</TooltipProvider>
+						<TooltipProvider>
+							<Tooltip>
+								<TooltipTrigger>
+									<Button
+										variant="outline"
+										size="sm"
+										onClick={() =>
+											bulkRejectSuggestedEvents({ ids: selectedEventIds })
+										}
+										disabled={isRejectingBulk}
+									>
+										{isRejectingBulk ? (
+											<Loader2 className="h-4 w-4 animate-spin" />
+										) : (
+											<XIcon className="h-4 w-4 mr-2" />
+										)}
+										Reject All
+									</Button>
+								</TooltipTrigger>
+								<TooltipContent>Reject all selected events</TooltipContent>
+							</Tooltip>
+						</TooltipProvider>
+					</div>
+				)}
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
 						<Button variant="outline" className="ml-auto">

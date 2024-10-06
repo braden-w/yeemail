@@ -54,9 +54,9 @@ export const suggestedEventsRouter = router({
 			return acceptSuggestedEvent(input.id);
 		}),
 	bulkAcceptSuggestedEvents: publicProcedure
-		.input(z.array(suggestedEventIdSchema))
-		.mutation(async ({ input }) => {
-			return bulkAcceptSuggestedEvents(input.map(({ id }) => id));
+		.input(z.object({ ids: z.array(suggestedEventIdSchema.shape.id) }))
+		.mutation(async ({ input: { ids } }) => {
+			return bulkAcceptSuggestedEvents(ids);
 		}),
 	rejectSuggestedEvent: publicProcedure
 		.input(suggestedEventIdSchema)
@@ -64,8 +64,8 @@ export const suggestedEventsRouter = router({
 			return rejectSuggestedEvent(input.id);
 		}),
 	bulkRejectSuggestedEvents: publicProcedure
-		.input(z.array(suggestedEventIdSchema))
-		.mutation(async ({ input }) => {
-			return bulkRejectSuggestedEvents(input.map(({ id }) => id));
+		.input(z.object({ ids: z.array(suggestedEventIdSchema.shape.id) }))
+		.mutation(async ({ input: { ids } }) => {
+			return bulkRejectSuggestedEvents(ids);
 		}),
 });
