@@ -27,7 +27,6 @@ import {
 } from "@/components/ui/tooltip";
 import type { SuggestedEvent } from "@/lib/db/schema/suggestedEvents";
 import { trpc } from "@/lib/trpc/client";
-import { nanoid } from "@/lib/utils";
 import {
 	type ColumnDef,
 	type ColumnFiltersState,
@@ -49,7 +48,6 @@ import {
 	MoreHorizontal,
 	XIcon,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 

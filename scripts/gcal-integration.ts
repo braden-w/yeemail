@@ -59,7 +59,7 @@ async function createPotentialEvent(userToken: string, events: any) {
 	const createdEvents = [];
 
 	// Loop through each event in the events array
-	for (let description of events) {
+	for (const description of events) {
 		const event = {
 			summary: description.summary,
 			location: description.location,
