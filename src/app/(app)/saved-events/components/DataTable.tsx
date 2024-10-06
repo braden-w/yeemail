@@ -107,7 +107,7 @@ export const columns: ColumnDef<SavedEvent>[] = [
 			const { mutate: exportSavedEvent, isLoading: isExporting } =
 				trpc.savedEvents.exportSavedEvent.useMutation({
 					onSuccess: async (data) => {
-						await utils.savedEvents.getSavedEvents.invalidate();
+						await utils.savedEvents.getPendingSavedEvents.invalidate();
 						toast.success("Exported Event!");
 					},
 				});
@@ -143,7 +143,7 @@ export const columns: ColumnDef<SavedEvent>[] = [
 ];
 
 export function DataTableDemo({ savedEvents }: { savedEvents: SavedEvent[] }) {
-	const { data, isLoading } = trpc.savedEvents.getSavedEvents.useQuery();
+	const { data, isLoading } = trpc.savedEvents.getPendingSavedEvents.useQuery();
 	const [sorting, setSorting] = useState<SortingState>([]);
 	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 	const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -159,7 +159,7 @@ export function DataTableDemo({ savedEvents }: { savedEvents: SavedEvent[] }) {
 		});
 
 	const table = useReactTable({
-		data: data?.savedEvents ?? [],
+		data: data?.pendingSavedEvents ?? [],
 		columns,
 		onSortingChange: setSorting,
 		onColumnFiltersChange: setColumnFilters,
