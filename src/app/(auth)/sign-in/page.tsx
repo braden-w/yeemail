@@ -73,7 +73,7 @@ export default function SignInPage() {
 	);
 }
 
-export function UserAuthForm() {
+function UserAuthForm() {
 	const [state, formAction, pending] = useActionState(signInAction, {
 		error: "",
 	});
