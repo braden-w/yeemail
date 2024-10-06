@@ -1,12 +1,11 @@
+import {
+	createEmail,
+	createMultipleEmails,
+} from "src/lib/api/emails/mutations";
 import { z } from "zod";
 
 // Usage
 const userToken = process.env.USER_KEY;
-const fs = require("node:fs");
-const { createMultipleEmails } = require("src/lib/api/emails/mutations");
-const { createEmail } = require("src/lib/api/emails/mutations");
-const { content } = require("googleapis/build/src/apis/content");
-const { max } = require("drizzle-orm");
 
 // Helper function to decode base64 URL-safe encoding
 function decodeBase64(data) {
