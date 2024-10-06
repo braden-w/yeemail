@@ -1,3 +1,4 @@
+import { getUserAuth } from "@/lib/auth/utils";
 import { db } from "@/lib/db/index";
 import {
 	type SavedEventId,
@@ -5,16 +6,18 @@ import {
 	savedEvents,
 } from "@/lib/db/schema/savedEvents";
 import { suggestedEvents } from "@/lib/db/schema/suggestedEvents";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 
 export const getSavedEvents = async () => {
+	const { session } = await getUserAuth();
 	const rows = await db
 		.select({ savedEvent: savedEvents, suggestedEvent: suggestedEvents })
 		.from(savedEvents)
 		.leftJoin(
 			suggestedEvents,
 			eq(savedEvents.suggestedEventId, suggestedEvents.id),
-		);
+		)
+		.where(eq(savedEvents.userId, session?.user.id!));
 	const s = rows.map((r) => ({
 		...r.savedEvent,
 		suggestedEvent: r.suggestedEvent,
@@ -23,11 +26,17 @@ export const getSavedEvents = async () => {
 };
 
 export const getSavedEventById = async (id: SavedEventId) => {
+	const { session } = await getUserAuth();
 	const { id: savedEventId } = savedEventIdSchema.parse({ id });
 	const [row] = await db
 		.select({ savedEvent: savedEvents, suggestedEvent: suggestedEvents })
 		.from(savedEvents)
-		.where(eq(savedEvents.id, savedEventId))
+		.where(
+			and(
+				eq(savedEvents.id, savedEventId),
+				eq(savedEvents.userId, session?.user.id!),
+			),
+		)
 		.leftJoin(
 			suggestedEvents,
 			eq(savedEvents.suggestedEventId, suggestedEvents.id),

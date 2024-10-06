@@ -1,3 +1,4 @@
+import { getUserAuth } from "@/lib/auth/utils";
 import { db } from "@/lib/db/index";
 import {
 	type NewSavedEventParams,
@@ -8,10 +9,14 @@ import {
 	savedEvents,
 	updateSavedEventSchema,
 } from "@/lib/db/schema/savedEvents";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 
 export const createSavedEvent = async (savedEvent: NewSavedEventParams) => {
-	const newSavedEvent = insertSavedEventSchema.parse(savedEvent);
+	const { session } = await getUserAuth();
+	const newSavedEvent = insertSavedEventSchema.parse({
+		...savedEvent,
+		userId: session?.user.id!,
+	});
 	try {
 		const [s] = await db.insert(savedEvents).values(newSavedEvent).returning();
 		return { savedEvent: s };
@@ -26,13 +31,22 @@ export const updateSavedEvent = async (
 	id: SavedEventId,
 	savedEvent: UpdateSavedEventParams,
 ) => {
+	const { session } = await getUserAuth();
 	const { id: savedEventId } = savedEventIdSchema.parse({ id });
-	const newSavedEvent = updateSavedEventSchema.parse(savedEvent);
+	const newSavedEvent = updateSavedEventSchema.parse({
+		...savedEvent,
+		userId: session?.user.id!,
+	});
 	try {
 		const [s] = await db
 			.update(savedEvents)
 			.set({ ...newSavedEvent, updatedAt: new Date() })
-			.where(eq(savedEvents.id, savedEventId!))
+			.where(
+				and(
+					eq(savedEvents.id, savedEventId!),
+					eq(savedEvents.userId, session?.user.id!),
+				),
+			)
 			.returning();
 		return { savedEvent: s };
 	} catch (err) {
@@ -43,11 +57,17 @@ export const updateSavedEvent = async (
 };
 
 export const deleteSavedEvent = async (id: SavedEventId) => {
+	const { session } = await getUserAuth();
 	const { id: savedEventId } = savedEventIdSchema.parse({ id });
 	try {
 		const [s] = await db
 			.delete(savedEvents)
-			.where(eq(savedEvents.id, savedEventId!))
+			.where(
+				and(
+					eq(savedEvents.id, savedEventId!),
+					eq(savedEvents.userId, session?.user.id!),
+				),
+			)
 			.returning();
 		return { savedEvent: s };
 	} catch (err) {

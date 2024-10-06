@@ -1,8 +1,10 @@
 import SavedEventList from "@/components/savedEvents/SavedEventList";
 import NewSavedEventModal from "@/components/savedEvents/SavedEventModal";
+import { checkAuth } from "@/lib/auth/utils";
 import { api } from "@/lib/trpc/api";
 
 export default async function SavedEvents() {
+	await checkAuth();
 	const { savedEvents } = await api.savedEvents.getSavedEvents.query();
 
 	return (

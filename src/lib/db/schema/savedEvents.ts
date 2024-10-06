@@ -11,11 +11,17 @@ export const savedEvents = pgTable("saved_events", {
 	id: varchar("id", { length: 191 })
 		.primaryKey()
 		.$defaultFn(() => nanoid()),
-	title: text("title"),
-	description: text("description"),
+	title: text("title").notNull(),
+	description: text("description").notNull(),
+	start: timestamp("start").notNull(),
+	end: timestamp("end"),
+	location: text("location"),
+	registrationLink: text("registration_link"),
+	associatedOrganization: text("associated_organization"),
 	suggestedEventId: varchar("suggested_event_id", { length: 256 })
 		.references(() => suggestedEvents.id, { onDelete: "cascade" })
 		.notNull(),
+	userId: varchar("user_id", { length: 256 }).notNull(),
 
 	createdAt: timestamp("created_at").notNull().default(sql`now()`),
 	updatedAt: timestamp("updated_at").notNull().default(sql`now()`),
@@ -28,16 +34,25 @@ export const insertSavedEventSchema =
 	createInsertSchema(savedEvents).omit(timestamps);
 export const insertSavedEventParams = baseSchema
 	.extend({
+		start: z.coerce.string().min(1),
+		end: z.coerce.string().min(1),
 		suggestedEventId: z.coerce.string().min(1),
 	})
 	.omit({
 		id: true,
+		userId: true,
 	});
 
 export const updateSavedEventSchema = baseSchema;
-export const updateSavedEventParams = baseSchema.extend({
-	suggestedEventId: z.coerce.string().min(1),
-});
+export const updateSavedEventParams = baseSchema
+	.extend({
+		start: z.coerce.string().min(1),
+		end: z.coerce.string().min(1),
+		suggestedEventId: z.coerce.string().min(1),
+	})
+	.omit({
+		userId: true,
+	});
 export const savedEventIdSchema = baseSchema.pick({ id: true });
 
 // Types for savedEvents - used to type API request params and within Components
