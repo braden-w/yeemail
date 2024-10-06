@@ -53,9 +53,8 @@ async function addEventsToCalendar(
 	events: SuggestedEvent[],
 ) {
 	// Create a new OAuth2 client with the provided user key
-	const oauth2Client = new google.auth.OAuth2().setCredentials({
-		access_token: userToken,
-	});
+	const oauth2Client = new google.auth.OAuth2();
+	oauth2Client.setCredentials({ access_token: userToken });
 
 	const calendar = google.calendar({ version: "v3", auth: oauth2Client });
 
