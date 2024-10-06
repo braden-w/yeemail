@@ -1,6 +1,10 @@
 // Usage
 const userToken = process.env.USER_KEY;
 const fs = require("node:fs");
+const { createMultipleEmails } = require('src/lib/api/emails/mutations');
+const { createEmail } = require('src/lib/api/emails/mutations');
+const { content } = require("googleapis/build/src/apis/content");
+const { max } = require("drizzle-orm");
 
 // Helper function to decode base64 URL-safe encoding
 function decodeBase64(data) {
@@ -13,14 +17,20 @@ function decodeBase64(data) {
 }
 
 // Fetch emails from Gmail API
-async function fetchGmailEmails(token, maxResults = 100) {
+async function fetchGmailEmails(token, maxResults = 75) {
     const baseUrl = 'https://gmail.googleapis.com/gmail/v1/users/me/messages';
     const headers = { 'Authorization': `Bearer ${token}` };
     const emails = [];
-  
+    
+    // Cap max results at 75
+    if (maxResults > 75) {
+        console.error("Error: maxResults must be less than or equal to 100.");
+        maxResults = 75;
+    }
+
     try {
       // Fetch list of email IDs
-      const response = await fetch(`${baseUrl}?maxResults=1`, { headers });
+      const response = await fetch(`${baseUrl}?maxResults=${ maxResults }`, { headers });
       if (!response.ok) {
         throw new Error(`Error fetching email list: ${response.status} ${await response.text()}`);
       }
@@ -40,8 +50,8 @@ async function fetchGmailEmails(token, maxResults = 100) {
           console.error(`Error fetching email ${emailId}: ${emailResponse.status}`);
         }
       }
-  
       return emails;
+
     } catch (error) {
       console.error('Error:', error.message);
       return [];
@@ -87,59 +97,80 @@ function ContentAndURL(message) {
             // If there's no 'parts', just grab the data from the payload body
             body = decodeBase64(payload.body.data);
         }
-//        console.log("BODY IS: ", body);
         return [body, html];
     }
     // Get the payload of the message
     const payload = message.payload;
-    // Extract the raw body content
     const [rawBody, rawHTML] = getMessageBody(payload);
- //   console.log(rawHTML); // Find all URLs in the body using regex
     const urls = scrapeHyperlinks(rawHTML);
-//    console.log("URLS ARE: ", urls);  
     return [rawBody, urls];
 }
 
-
-
-
-
-// EXECUTED:
-
-// Add them to email.txt
-fetchGmailEmails(userToken)
-// print out the subject, sender, date/time, and content of each email
-  .then(emails => {
-      for (const email of emails) {
-        for (const email of emails) {
-            const subject = email.payload.headers.find(header => header.name === 'Subject').value;
-            const sender = email.payload.headers.find(header => header.name === 'From').value;
-            const dateTime = new Date(parseInt(email.internalDate));
-            const [rawContent, links] = ContentAndURL(email);
-  
-            const emailData = {
-                subject,
-                sender,
-                dateTime,
-                links: links
-            };
-            const emailDataString = JSON.stringify(emailData, null, 2);
-
-          fs.appendFile('metadata.txt', emailDataString + '\n', (err) => {
-              if (err) {
-                  console.error('Error appending email to file:', err);
-              } else {
-                  console.log('Email appended to file successfully.');
-              }
-          });
-          fs.appendFile('content.txt', rawContent + '\n', (err) => {
-              if (err) {
-                  console.error('Error appending email to file:', err);
-              } else {
-                  console.log('Email appended to file successfully.');
-              }
-           });
+function formatEmailJSON(emails) {
+    const emailData = [];
+    for (const email of emails) {
+        const subject = email.payload.headers.find(header => header.name === 'Subject').value;
+        const sender = email.payload.headers.find(header => header.name === 'From').value;
+        const dateTime = new Date(parseInt(email.internalDate));
+        const [rawContent, links] = ContentAndURL(email);
+        const formatted = {
+            subject,
+            content: rawContent,
+            sender,
+            receivedAt: dateTime,
+            links: JSON.stringify(links)
+        }
+        emailData.push(formatted);
     }
+    return emailData;
+}
+
+async function insertAllEmails(userToken, maxResults) {
+  if (maxResults > 75) {
+    console.error('Error: Max results must be less than or equal to 75.');
+    maxResults = 75;
   }
+  if (!userToken) {
+    console.error('Error: User token is required.');
+    return;
+  }
+  // Fetch emails from Gmail API
+  const emails = await fetchGmailEmails(userToken, maxResults)
+
+  // print out the subject, sender, date/time, and content of each email
+  .then(emails => {
+    const emailData = formatEmailJSON(emails);
+    // console.log(emailData);
+    const insertedCount = createMultipleEmails(emailData)
+      .then(() => {
+        console.log(`${ insertedCount } emails inserted successfully.`);
+      })
+      .catch(console.error);
   })
-.catch(console.error);
+  .catch(console.error)
+  };
+
+
+async function insertOneEmail(userToken) {
+  if (!userToken) {
+    console.error('Error: User token is required.');
+    return;
+  }
+  // Fetch emails from Gmail API
+  const emails = await fetchGmailEmails(userToken, 1)
+
+  // print out the subject, sender, date/time, and content of each email
+  .then(emails => {
+    const emailData = formatEmailJSON(emails);
+    const insertedCount = createEmail(emailData[0])
+      .then(() => {
+        console.log(`${ insertedCount } emails inserted successfully.`);
+      })
+      .catch(console.error);
+  })
+  .catch(console.error)
+  }
+
+// Usage
+insertAllEmails(userToken, 2);
+//insertOneEmail(userToken);
