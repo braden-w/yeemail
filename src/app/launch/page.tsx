@@ -1,4 +1,5 @@
 "use client";
+import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -8,7 +9,7 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { CalendarIcon, MailIcon } from "lucide-react";
+import { CalendarIcon } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -32,10 +33,7 @@ export default function LandingPage() {
 	return (
 		<div className="flex min-h-screen flex-col">
 			<header className="flex h-14 items-center px-4 lg:px-6">
-				<Link className="flex items-center justify-center" href="#">
-					<MailIcon className="h-6 w-6 text-blue-600" />
-					<span className="ml-2 font-bold text-xl">YEEMail</span>
-				</Link>
+				<Logo />
 				<nav className="ml-auto flex gap-4 sm:gap-6">
 					<Link
 						className="font-medium text-sm underline-offset-4 hover:underline"
