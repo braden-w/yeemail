@@ -23,6 +23,10 @@ export const savedEvents = pgTable("saved_events", {
 		.notNull(),
 	userId: varchar("user_id", { length: 256 }).notNull(),
 
+	status: text("status", { enum: ["pending", "approved", "rejected"] })
+		.notNull()
+		.default("pending"),
+
 	createdAt: timestamp("created_at").notNull().default(sql`now()`),
 	updatedAt: timestamp("updated_at").notNull().default(sql`now()`),
 });

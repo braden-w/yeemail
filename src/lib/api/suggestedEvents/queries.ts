@@ -13,6 +13,14 @@ export const getSuggestedEvents = async () => {
 	return { suggestedEvents: s };
 };
 
+export const getPendingSuggestedEvents = async () => {
+	const rows = await db
+		.select()
+		.from(suggestedEvents)
+		.where(eq(suggestedEvents.status, "pending"));
+	return { pendingSuggestedEvents: rows };
+};
+
 export const getSuggestedEventById = async (id: SuggestedEventId) => {
 	const { id: suggestedEventId } = suggestedEventIdSchema.parse({ id });
 	const [row] = await db
@@ -43,12 +51,4 @@ export const getSuggestedEventByIdWithSavedEvents = async (
 		.map((s) => s.savedEvent) as CompleteSavedEvent[];
 
 	return { suggestedEvent: r, savedEvents: rs };
-};
-
-export const getPendingSuggestedEvents = async () => {
-	const rows = await db
-		.select()
-		.from(suggestedEvents)
-		.where(eq(suggestedEvents.status, "pending"));
-	return { pendingSuggestedEvents: rows };
 };

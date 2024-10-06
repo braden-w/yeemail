@@ -1,9 +1,11 @@
 import {
+	bulkExportSavedEvents,
 	createSavedEvent,
 	deleteSavedEvent,
 	updateSavedEvent,
 } from "@/lib/api/savedEvents/mutations";
 import {
+	getPendingSavedEvents,
 	getSavedEventById,
 	getSavedEvents,
 } from "@/lib/api/savedEvents/queries";
@@ -13,10 +15,14 @@ import {
 	updateSavedEventParams,
 } from "@/lib/db/schema/savedEvents";
 import { publicProcedure, router } from "@/lib/server/trpc";
+import { z } from "zod";
 
 export const savedEventsRouter = router({
 	getSavedEvents: publicProcedure.query(async () => {
 		return getSavedEvents();
+	}),
+	getPendingSavedEvents: publicProcedure.query(async () => {
+		return getPendingSavedEvents();
 	}),
 	getSavedEventById: publicProcedure
 		.input(savedEventIdSchema)
@@ -37,5 +43,15 @@ export const savedEventsRouter = router({
 		.input(savedEventIdSchema)
 		.mutation(async ({ input }) => {
 			return deleteSavedEvent(input.id);
+		}),
+	exportSavedEvent: publicProcedure
+		.input(savedEventIdSchema)
+		.mutation(async ({ input }) => {
+			return bulkExportSavedEvents([input.id]);
+		}),
+	bulkExportSavedEvents: publicProcedure
+		.input(z.object({ ids: z.array(savedEventIdSchema.shape.id) }))
+		.mutation(async ({ input: { ids } }) => {
+			return bulkExportSavedEvents(ids);
 		}),
 });

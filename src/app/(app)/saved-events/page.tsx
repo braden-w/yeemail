@@ -1,19 +1,26 @@
-import SavedEventList from "@/components/savedEvents/SavedEventList";
-import NewSavedEventModal from "@/components/savedEvents/SavedEventModal";
 import { checkAuth } from "@/lib/auth/utils";
 import { api } from "@/lib/trpc/api";
+import { DataTableDemo } from "./components/DataTable";
 
 export default async function SavedEvents() {
 	await checkAuth();
 	const { savedEvents } = await api.savedEvents.getSavedEvents.query();
 
 	return (
-		<main>
-			<div className="flex justify-between">
-				<h1 className="my-2 font-semibold text-2xl">Saved Events</h1>
-				<NewSavedEventModal />
-			</div>
-			<SavedEventList savedEvents={savedEvents} />
-		</main>
+		<div className="flex min-h-screen flex-col">
+			<main className="flex-1">
+				<section className="w-full py-6 sm:py-12 md:py-24">
+					<div className="container px-4 md:px-6">
+						<h1 className="mb-6 font-bold text-3xl tracking-tighter sm:text-4xl">
+							Saved Events
+						</h1>
+						<DataTableDemo savedEvents={savedEvents} />
+					</div>
+				</section>
+			</main>
+			<footer className="flex w-full shrink-0 flex-col items-center gap-2 border-t px-4 py-6 sm:flex-row md:px-6">
+				<p>© 2024 YEEMail. All rights reserved.</p>
+			</footer>
+		</div>
 	);
 }

@@ -57,6 +57,13 @@
 			"when": 1728177662142,
 			"tag": "0007_lazy_rocket_raccoon",
 			"breakpoints": true
+		},
+		{
+			"idx": 8,
+			"version": "7",
+			"when": 1728218942981,
+			"tag": "0008_true_justice",
+			"breakpoints": true
 		}
 	]
 }

@@ -16,6 +16,7 @@ export type AuthSession = {
 			name?: string;
 			email?: string;
 			username?: string;
+			googleAccessToken: string;
 		};
 	} | null;
 };
@@ -28,6 +29,7 @@ export const getUserAuth = async (): Promise<AuthSession> => {
 				id: user.id,
 				email: user.email,
 				name: user.name,
+				googleAccessToken: session.google_access_token,
 			},
 		},
 	};
