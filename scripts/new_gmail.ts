@@ -119,15 +119,17 @@ export async function getGmailEmails({
 		}
 
 		const emails = await Promise.all(
-			messages.map(async (msg) => {
-				if (!msg.id) return null;
-				const emailResponse = await gmail.users.messages.get({
-					userId: "me",
-					id: msg.id,
-				});
-				return formatEmailJSON(emailResponse.data);
-			}),
-		).then((emails) => emails.filter((email) => email !== null));
+			messages
+				.map((msg) => msg.id)
+				.filter((id) => id !== null && id !== undefined)
+				.map(async (id) => {
+					const emailResponse = await gmail.users.messages.get({
+						userId: "me",
+						id,
+					});
+					return formatEmailJSON(emailResponse.data);
+				}),
+		);
 		return emails;
 	} catch (error) {
 		console.error(
