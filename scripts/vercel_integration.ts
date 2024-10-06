@@ -8,19 +8,19 @@ const groq = createGroq({
 	apiKey: process.env.GROQ_API_KEY,
 });
 
-const emailContent = fs.readFileSync('content.txt', 'utf-8');
-const emailMetadata = fs.readFileSync('metadata.txt', 'utf-8');
+const emailContent = fs.readFileSync("content.txt", "utf-8");
+const emailMetadata = fs.readFileSync("metadata.txt", "utf-8");
 const plaintext_prompt = `
 You will be given an email with metadata and content. Your task is to read the content and identify any events or meetings mentioned, then extract information about these events. Do not attempt to calculate dates or times. Instead, include relevant excerpts from the original text for dates and times. These will be processed by an external library.
 
 Here is the email metadata:
 <email_metadata>
-${ emailMetadata }
+${emailMetadata}
 </email_metadata>
 
 And here is the email content:
 <email_content>
-${ emailContent }
+${emailContent}
 </email_content>
 
 Follow these steps:
@@ -73,21 +73,21 @@ Ensure that your output strictly follows the format specified above, as it will 
 `;
 
 const { object } = await generateObject({
-    model: groq('llama-3.1-70b-versatile'),
-    schema: z.object({
-        events: z.array(
-            z.object({
-                name: z.string(),
-                sender_org: z.string(),
-                location: z.string(),
-                start_time: z.string(),
-                end_time: z.string(),
-                description: z.array(z.string()),
-                registration_link: z.string().url()
-            })
-        )
-    }),
-    prompt: plaintext_prompt,
+	model: groq("llama-3.1-70b-versatile"),
+	schema: z.object({
+		events: z.array(
+			z.object({
+				name: z.string(),
+				sender_org: z.string(),
+				location: z.string(),
+				start_time: z.string(),
+				end_time: z.string(),
+				description: z.array(z.string()),
+				registration_link: z.string().url(),
+			}),
+		),
+	}),
+	prompt: plaintext_prompt,
 });
 
 console.log(object);
