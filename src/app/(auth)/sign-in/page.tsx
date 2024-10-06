@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useActionState } from "react";
-import Google from "~icons/logos/google";
+import Google from "~icons/logos/google-icon";
 
 export default function SignInPage() {
 	return (
