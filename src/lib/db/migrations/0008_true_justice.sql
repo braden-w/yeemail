@@ -1,0 +1,1 @@
+ALTER TABLE "saved_events" ADD COLUMN "status" text DEFAULT 'pending' NOT NULL;
