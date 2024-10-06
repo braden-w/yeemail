@@ -1,3 +1,4 @@
+import type { NewEmailParams } from "@/lib/db/schema";
 import { type gmail_v1, google } from "googleapis";
 import {
 	createEmail,
@@ -6,18 +7,10 @@ import {
 
 type GmailMessage = gmail_v1.Schema$Message;
 
-type FormattedEmail = {
-	subject: string;
-	content: string;
-	sender: string;
-	receivedAt: string;
-	links: string;
-};
-
 export async function getGmailEmails({
 	token,
 	maxResults = 75,
-}: { token: string; maxResults?: number }): Promise<FormattedEmail[]> {
+}: { token: string; maxResults?: number }): Promise<NewEmailParams[]> {
 	const decodeBase64 = (data: string) => {
 		try {
 			return Buffer.from(data, "base64").toString("utf-8");
@@ -27,7 +20,7 @@ export async function getGmailEmails({
 		}
 	};
 
-	const formatEmailJSON = (email: GmailMessage): FormattedEmail => {
+	const formatEmailJSON = (email: GmailMessage): NewEmailParams => {
 		const getHeader = (name: string) =>
 			email.payload?.headers?.find((header) => header.name === name)?.value ??
 			"";
