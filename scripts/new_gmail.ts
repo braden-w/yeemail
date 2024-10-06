@@ -45,7 +45,21 @@ export async function getGmailEmails({
 			return [];
 		}
 
-		console.log("🚀 ~ fetchGmailEmails ~ messages:", messages);
+		const formatEmailJSON = (email: GmailMessage): FormattedEmail => {
+			const getHeader = (name: string) =>
+				email.payload?.headers?.find((header) => header.name === name)?.value ??
+				"";
+
+			const { rawContent, links } = getContentAndURL(email);
+
+			return {
+				subject: getHeader("Subject"),
+				content: rawContent,
+				sender: getHeader("From"),
+				receivedAt: new Date(Number(email.internalDate)).toISOString(),
+				links: JSON.stringify(links),
+			};
+		};
 
 		const emails = await Promise.all(
 			messages.map(async (msg) => {
@@ -120,21 +134,6 @@ function getContentAndURL(message: GmailMessage): {
 	const { body, html } = getMessageBody(payload);
 	const urls = scrapeHyperlinks(html);
 	return { rawContent: body, links: urls };
-}
-
-function formatEmailJSON(email: GmailMessage): FormattedEmail {
-	const getHeader = (name: string) =>
-		email.payload?.headers?.find((header) => header.name === name)?.value ?? "";
-
-	const { rawContent, links } = getContentAndURL(email);
-
-	return {
-		subject: getHeader("Subject"),
-		content: rawContent,
-		sender: getHeader("From"),
-		receivedAt: new Date(Number(email.internalDate)).toISOString(),
-		links: JSON.stringify(links),
-	};
 }
 
 async function insertAllEmails({
