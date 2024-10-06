@@ -24,7 +24,6 @@ export async function getGmailEmails({
 	oauth2Client.setCredentials({ access_token: token });
 
 	const gmail = google.gmail({ version: "v1", auth: oauth2Client });
-	const emails: GmailMessage[] = [];
 
 	try {
 		const response = await gmail.users.messages.list({
@@ -40,20 +39,20 @@ export async function getGmailEmails({
 
 		console.log("🚀 ~ fetchGmailEmails ~ messages:", messages);
 
-		for (const msg of messages) {
-			if (msg.id) {
-				const emailResponse = await gmail.users.messages.get({
-					userId: "me",
-					id: msg.id,
-				});
-
-				if (emailResponse.data) {
-					emails.push(emailResponse.data);
+		const emails = await Promise.all(
+			messages.map(async (msg) => {
+				if (msg.id) {
+					const emailResponse = await gmail.users.messages.get({
+						userId: "me",
+						id: msg.id,
+					});
+					return emailResponse.data;
 				}
-			}
-		}
+				return null;
+			}),
+		);
 
-		return emails;
+		return emails.filter((email) => email !== null);
 	} catch (error) {
 		console.error(
 			"Error:",
@@ -120,26 +119,21 @@ interface FormattedEmail {
 }
 
 function formatEmailJSON(emails: GmailMessage[]): FormattedEmail[] {
-	const emailData: FormattedEmail[] = [];
-	for (const email of emails) {
-		const subject =
-			email.payload?.headers?.find((header) => header.name === "Subject")
-				?.value ?? "";
-		const sender =
-			email.payload?.headers?.find((header) => header.name === "From")?.value ??
+	return emails.map((email) => {
+		const getHeader = (name: string) =>
+			email.payload?.headers?.find((header) => header.name === name)?.value ??
 			"";
-		const dateTime = new Date(Number(email.internalDate)).toISOString();
+
 		const [rawContent, links] = getContentAndURL(email);
-		const formatted: FormattedEmail = {
-			subject,
+
+		return {
+			subject: getHeader("Subject"),
 			content: rawContent,
-			sender,
-			receivedAt: dateTime,
+			sender: getHeader("From"),
+			receivedAt: new Date(Number(email.internalDate)).toISOString(),
 			links: JSON.stringify(links),
 		};
-		emailData.push(formatted);
-	}
-	return emailData;
+	});
 }
 
 async function insertAllEmails({
@@ -147,7 +141,6 @@ async function insertAllEmails({
 	maxResults,
 }: { userToken: string; maxResults: number }) {
 	try {
-		// Fetch emails from Gmail API
 		const emails = await getGmailEmails({ token: userToken, maxResults });
 		const emailData = formatEmailJSON(emails);
 		const result = await createMultipleEmails(emailData);
@@ -166,7 +159,6 @@ async function insertOneEmail(userToken: string) {
 		return;
 	}
 	try {
-		// Fetch emails from Gmail API
 		const emails = await getGmailEmails({ token: userToken, maxResults: 1 });
 		const emailData = formatEmailJSON(emails);
 		if (emailData.length > 0) {
@@ -185,4 +177,4 @@ async function insertOneEmail(userToken: string) {
 
 // Usage
 // insertAllEmails({ userToken: process.env.USER_KEY ?? "", maxResults: 2 });
-//insertOneEmail(process.env.USER_KEY ?? "");
+// insertOneEmail(process.env.USER_KEY ?? "");
