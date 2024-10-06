@@ -1,12 +1,10 @@
 import { router } from "@/lib/server/trpc";
-import { computersRouter } from "./computers";
 import { emailsRouter } from "./emails";
 import { savedEventsRouter } from "./savedEvents";
 import { schedulesRouter } from "./schedules";
 import { suggestedEventsRouter } from "./suggestedEvents";
 
 export const appRouter = router({
-	computers: computersRouter,
 	suggestedEvents: suggestedEventsRouter,
 	savedEvents: savedEventsRouter,
 	schedules: schedulesRouter,
