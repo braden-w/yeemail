@@ -5,6 +5,7 @@ const { createMultipleEmails } = require('src/lib/api/emails/mutations');
 const { createEmail } = require('src/lib/api/emails/mutations');
 const { content } = require("googleapis/build/src/apis/content");
 const { max } = require("drizzle-orm");
+const { start } = require("node:repl");
 
 // Helper function to decode base64 URL-safe encoding
 function decodeBase64(data) {
@@ -17,46 +18,54 @@ function decodeBase64(data) {
 }
 
 // Fetch emails from Gmail API
-async function fetchGmailEmails(token, maxResults = 75) {
-    const baseUrl = 'https://gmail.googleapis.com/gmail/v1/users/me/messages';
-    const headers = { 'Authorization': `Bearer ${token}` };
-    const emails = [];
-    
-    // Cap max results at 75
-    if (maxResults > 75) {
-        console.error("Error: maxResults must be less than or equal to 100.");
-        maxResults = 75;
-    }
+async function fetchGmailEmails(token, maxResults = 75, date = null) {
+  const baseUrl = 'https://gmail.googleapis.com/gmail/v1/users/me/messages';
+  const headers = { 'Authorization': `Bearer ${token}` };
+  const emails = [];
+  const today = new Date().toISOString().split('T')[0];
+  let query = '';
 
-    try {
-      // Fetch list of email IDs
-      const response = await fetch(`${baseUrl}?maxResults=${ maxResults }`, { headers });
-      if (!response.ok) {
-        throw new Error(`Error fetching email list: ${response.status} ${await response.text()}`);
-      }
-  
-      const data = await response.json();
-      const messages = data.messages || [];
-  
-      // Fetch email details for each ID
-      for (const msg of messages) {
-        const emailId = msg.id;
-        const emailUrl = `${baseUrl}/${emailId}`;
-        const emailResponse = await fetch(emailUrl, { headers });
-        if (emailResponse.ok) {
-          const emailData = await emailResponse.json();
-          emails.push(emailData); // Add email data to the list
-        } else {
-          console.error(`Error fetching email ${emailId}: ${emailResponse.status}`);
-        }
-      }
-      return emails;
-
-    } catch (error) {
-      console.error('Error:', error.message);
-      return [];
-    }
+  if (date) {
+    query = `after:${date} before:${today}`;
   }
+
+  const encodedQuery = encodeURIComponent(query);
+
+  // Cap max results at 75
+  if (maxResults > 75) {
+    console.error("Error: maxResults must be less than or equal to 100.");
+    maxResults = 75;
+  }
+
+  try {
+    // Fetch list of email IDs
+    const response = await fetch(`${baseUrl}?q=${encodedQuery}&maxResults=${maxResults}`, { headers });
+    if (!response.ok) {
+      throw new Error(`Error fetching email list: ${response.status} ${await response.text()}`);
+    }
+
+    const data = await response.json();
+    const messages = data.messages || [];
+
+    // Fetch email details for each ID
+    for (const msg of messages) {
+      const emailId = msg.id;
+      const emailUrl = `${baseUrl}/${emailId}`;
+      const emailResponse = await fetch(emailUrl, { headers });
+      if (emailResponse.ok) {
+        const emailData = await emailResponse.json();
+        emails.push(emailData); // Add email data to the list
+      } else {
+        console.error(`Error fetching email ${emailId}: ${emailResponse.status}`);
+      }
+    }
+    return emails;
+
+  } catch (error) {
+    console.error('Error:', error.message);
+    return [];
+  }
+}
   
 function ContentAndURL(message) {
   // HTML scraper function to search for hyperlinks
@@ -172,5 +181,5 @@ async function insertOneEmail(userToken) {
   }
 
 // Usage
-insertAllEmails(userToken, 2);
+insertAllEmails(userToken, 1);
 //insertOneEmail(userToken);
