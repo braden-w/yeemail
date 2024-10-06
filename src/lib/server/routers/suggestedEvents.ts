@@ -1,9 +1,12 @@
 import {
+	acceptSuggestedEvent,
 	createSuggestedEvent,
 	deleteSuggestedEvent,
+	rejectSuggestedEvent,
 	updateSuggestedEvent,
 } from "@/lib/api/suggestedEvents/mutations";
 import {
+	getPendingSuggestedEvents,
 	getSuggestedEventById,
 	getSuggestedEvents,
 } from "@/lib/api/suggestedEvents/queries";
@@ -23,6 +26,9 @@ export const suggestedEventsRouter = router({
 		.query(async ({ input }) => {
 			return getSuggestedEventById(input.id);
 		}),
+	getPendingSuggestedEvents: publicProcedure.query(async () => {
+		return getPendingSuggestedEvents();
+	}),
 	createSuggestedEvent: publicProcedure
 		.input(insertSuggestedEventParams)
 		.mutation(async ({ input }) => {
@@ -37,5 +43,16 @@ export const suggestedEventsRouter = router({
 		.input(suggestedEventIdSchema)
 		.mutation(async ({ input }) => {
 			return deleteSuggestedEvent(input.id);
+		}),
+
+	acceptSuggestedEvent: publicProcedure
+		.input(suggestedEventIdSchema)
+		.mutation(async ({ input }) => {
+			return acceptSuggestedEvent(input.id);
+		}),
+	rejectSuggestedEvent: publicProcedure
+		.input(suggestedEventIdSchema)
+		.mutation(async ({ input }) => {
+			return rejectSuggestedEvent(input.id);
 		}),
 });

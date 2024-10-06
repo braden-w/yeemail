@@ -44,3 +44,11 @@ export const getSuggestedEventByIdWithSavedEvents = async (
 
 	return { suggestedEvent: r, savedEvents: rs };
 };
+
+export const getPendingSuggestedEvents = async () => {
+	const rows = await db
+		.select()
+		.from(suggestedEvents)
+		.where(eq(suggestedEvents.status, "pending"));
+	return { pendingSuggestedEvents: rows };
+};

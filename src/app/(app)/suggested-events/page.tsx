@@ -26,6 +26,7 @@ import {
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 import type { SuggestedEvent } from "@/lib/db/schema/suggestedEvents";
+import { trpc } from "@/lib/trpc/client";
 import { nanoid } from "@/lib/utils";
 import {
 	type ColumnDef,
@@ -44,66 +45,13 @@ import {
 	ArrowUpDown,
 	CheckIcon,
 	ChevronDown,
+	Loader2,
 	MoreHorizontal,
 	XIcon,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
-
-const locations = [
-	"Virtual",
-	"Conference Center",
-	"University Auditorium",
-	"City Park",
-	"Community Center",
-	"Local Library",
-	"Art Gallery",
-	"Sports Arena",
-	"Hotel Ballroom",
-	"Outdoor Amphitheater",
-];
-
-const eventTitles = [
-	"Tech Innovation Summit",
-	"Annual Charity Gala",
-	"Environmental Awareness Workshop",
-	"Local Food Festival",
-	"Career Development Seminar",
-	"Fitness and Wellness Expo",
-	"Art and Culture Symposium",
-	"Music in the Park",
-	"Entrepreneurship Bootcamp",
-	"Science Fair for Kids",
-];
-
-function randomDate(start: Date, end: Date): Date {
-	return new Date(
-		start.getTime() + Math.random() * (end.getTime() - start.getTime()),
-	);
-}
-
-export const sampleSuggestedEvents: SuggestedEvent[] = Array.from(
-	{ length: 20 },
-	(_, index) => {
-		const startDate = randomDate(new Date(2024, 0, 1), new Date(2024, 11, 31));
-		const endDate = new Date(
-			startDate.getTime() + Math.random() * 1000 * 60 * 60 * 8,
-		); // Up to 8 hours later
-
-		return {
-			id: nanoid(),
-			title: `${eventTitles[index % eventTitles.length]} ${index + 1}`,
-			description: `This is a sample description for the ${eventTitles[index % eventTitles.length]} event.`,
-			start: startDate,
-			end: endDate,
-			location: locations[Math.floor(Math.random() * locations.length)],
-			createdAt: new Date(),
-			updatedAt: new Date(),
-			associatedOrganization: "Sample Organization",
-			registrationLink: "https://example.com",
-			status: "pending",
-		};
-	},
-);
+import { toast } from "sonner";
 
 export const columns: ColumnDef<SuggestedEvent>[] = [
 	{
@@ -166,28 +114,68 @@ export const columns: ColumnDef<SuggestedEvent>[] = [
 		cell: ({ row }) => {
 			const event = row.original;
 
+			const utils = trpc.useUtils();
+
+			const { mutate: acceptSuggestedEvent, isLoading: isAccepting } =
+				trpc.suggestedEvents.acceptSuggestedEvent.useMutation({
+					onSuccess: async (data) => {
+						await utils.suggestedEvents.getPendingSuggestedEvents.invalidate();
+						toast.success("Accepted Event!");
+					},
+				});
+
+			const { mutate: rejectSuggestedEvent, isLoading: isRejecting } =
+				trpc.suggestedEvents.rejectSuggestedEvent.useMutation({
+					onSuccess: async (data) => {
+						await utils.suggestedEvents.getPendingSuggestedEvents.invalidate();
+						toast.success("Rejected Event!");
+					},
+				});
+
 			return (
 				<div className="flex gap-2">
 					<TooltipProvider>
 						<Tooltip>
 							<TooltipTrigger>
-								<Button variant="ghost" className="h-8 w-8 p-0">
+								<Button
+									variant="ghost"
+									className="h-8 w-8 p-0"
+									onClick={() => acceptSuggestedEvent({ id: event.id })}
+									disabled={isAccepting}
+								>
 									<span className="sr-only">Open menu</span>
-									<CheckIcon className="h-4 w-4" />
+									{isAccepting ? (
+										<Loader2 className="h-4 w-4 animate-spin" />
+									) : (
+										<CheckIcon className="h-4 w-4" />
+									)}
 								</Button>
 							</TooltipTrigger>
-							<TooltipContent>Accept Suggested Event</TooltipContent>
+							<TooltipContent>
+								{isAccepting ? "Accepting..." : "Accept Suggested Event"}
+							</TooltipContent>
 						</Tooltip>
 					</TooltipProvider>
 					<TooltipProvider>
 						<Tooltip>
 							<TooltipTrigger>
-								<Button variant="ghost" className="h-8 w-8 p-0">
+								<Button
+									variant="ghost"
+									className="h-8 w-8 p-0"
+									onClick={() => rejectSuggestedEvent({ id: event.id })}
+									disabled={isRejecting}
+								>
 									<span className="sr-only">Open menu</span>
-									<XIcon className="h-4 w-4" />
+									{isRejecting ? (
+										<Loader2 className="h-4 w-4 animate-spin" />
+									) : (
+										<XIcon className="h-4 w-4" />
+									)}
 								</Button>
 							</TooltipTrigger>
-							<TooltipContent>Reject Suggested Event</TooltipContent>
+							<TooltipContent>
+								{isRejecting ? "Rejecting..." : "Reject Suggested Event"}
+							</TooltipContent>
 						</Tooltip>
 					</TooltipProvider>
 					<DropdownMenu>
@@ -216,6 +204,8 @@ export const columns: ColumnDef<SuggestedEvent>[] = [
 ];
 
 export default function SuggestedEvents() {
+	const { data, isLoading } =
+		trpc.suggestedEvents.getPendingSuggestedEvents.useQuery();
 	return (
 		<div className="flex min-h-screen flex-col">
 			<main className="flex-1">
@@ -224,7 +214,7 @@ export default function SuggestedEvents() {
 						<h1 className="mb-6 font-bold text-3xl tracking-tighter sm:text-4xl">
 							Suggested Events
 						</h1>
-						<DataTableDemo />
+						<DataTableDemo data={data?.pendingSuggestedEvents ?? []} />
 					</div>
 				</section>
 			</main>
@@ -235,14 +225,18 @@ export default function SuggestedEvents() {
 	);
 }
 
-export function DataTableDemo() {
+export function DataTableDemo({
+	data,
+}: {
+	data: SuggestedEvent[];
+}) {
 	const [sorting, setSorting] = useState<SortingState>([]);
 	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 	const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
 	const [rowSelection, setRowSelection] = useState({});
 
 	const table = useReactTable({
-		data: sampleSuggestedEvents,
+		data,
 		columns,
 		onSortingChange: setSorting,
 		onColumnFiltersChange: setColumnFilters,
