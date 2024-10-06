@@ -1,26 +1,26 @@
 import { createOpenAI as createGroq } from "@ai-sdk/openai";
 import { generateObject } from "ai";
 import { z } from "zod";
-const fs = require("node:fs");
+import type { Email } from "@/lib/db/schema/emails";
 
 const groq = createGroq({
 	baseURL: "https://api.groq.com/openai/v1",
 	apiKey: process.env.GROQ_API_KEY,
 });
 
-const emailContent = fs.readFileSync("content.txt", "utf-8");
-const emailMetadata = fs.readFileSync("metadata.txt", "utf-8");
-const plaintext_prompt = `
+async function extractEventsFromEmail(email: Email) {
+	const { content, ...metadata } = email;
+	const plaintext_prompt = `
 You will be given an email with metadata and content. Your task is to read the content and identify any events or meetings mentioned, then extract information about these events. Do not attempt to calculate dates or times. Instead, include relevant excerpts from the original text for dates and times. These will be processed by an external library.
 
 Here is the email metadata:
 <email_metadata>
-${emailMetadata}
+${JSON.stringify(metadata)}
 </email_metadata>
 
 And here is the email content:
 <email_content>
-${emailContent}
+${content}
 </email_content>
 
 Follow these steps:
@@ -72,22 +72,23 @@ registration_link: null
 Ensure that your output strictly follows the format specified above, as it will be parsed programmatically.
 `;
 
-const { object } = await generateObject({
-	model: groq("llama-3.1-70b-versatile"),
-	schema: z.object({
-		events: z.array(
-			z.object({
-				name: z.string(),
-				sender_org: z.string(),
-				location: z.string(),
-				start_time: z.string(),
-				end_time: z.string(),
-				description: z.array(z.string()),
-				registration_link: z.string().url(),
-			}),
-		),
-	}),
-	prompt: plaintext_prompt,
-});
+	const { object } = await generateObject({
+		model: groq("llama-3.1-70b-versatile"),
+		schema: z.object({
+			events: z.array(
+				z.object({
+					name: z.string(),
+					sender_org: z.string(),
+					location: z.string(),
+					start_time: z.string(),
+					end_time: z.string(),
+					description: z.array(z.string()),
+					registration_link: z.string().url().nullable(),
+				}),
+			),
+		}),
+		prompt: plaintext_prompt,
+	});
 
-console.log(object);
+	return object.events;
+}
