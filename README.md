@@ -1,3 +1,5 @@
+## Description
+
 YEEmail is an AI-powered email assistant that automatically extracts event information from your inbox and syncs it with your calendar. Here's how it works:
 
 1. Securely connects to students' Gmail accounts via OAuth.
