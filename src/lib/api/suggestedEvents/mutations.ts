@@ -10,6 +10,7 @@ import {
 	suggestedEvents,
 	updateSuggestedEventSchema,
 } from "@/lib/db/schema/suggestedEvents";
+import { nanoid } from "@/lib/utils";
 import { eq } from "drizzle-orm";
 
 export const createSuggestedEvent = async (
@@ -82,6 +83,7 @@ export const acceptSuggestedEvent = async (id: SuggestedEventId) => {
 			.insert(savedEvents)
 			.values({
 				...newSuggestedEvent,
+				id: nanoid(),
 				userId: session?.user.id!,
 				suggestedEventId,
 			})
