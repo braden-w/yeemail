@@ -26,6 +26,7 @@ import {
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 import type { SuggestedEvent } from "@/lib/db/schema/suggestedEvents";
+import { trpc } from "@/lib/trpc/client";
 import { nanoid } from "@/lib/utils";
 import {
 	type ColumnDef,
@@ -44,10 +45,13 @@ import {
 	ArrowUpDown,
 	CheckIcon,
 	ChevronDown,
+	Loader2,
 	MoreHorizontal,
 	XIcon,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
 
 const locations = [
 	"Virtual",
@@ -166,28 +170,71 @@ export const columns: ColumnDef<SuggestedEvent>[] = [
 		cell: ({ row }) => {
 			const event = row.original;
 
+			const utils = trpc.useUtils();
+			const router = useRouter();
+
+			const { mutate: acceptSuggestedEvent, isLoading: isAccepting } =
+				trpc.suggestedEvents.acceptSuggestedEvent.useMutation({
+					onSuccess: async (data) => {
+						await utils.suggestedEvents.getSuggestedEvents.invalidate();
+						router.refresh();
+						toast.success("Accepted Event!");
+					},
+				});
+
+			const { mutate: rejectSuggestedEvent, isLoading: isRejecting } =
+				trpc.suggestedEvents.rejectSuggestedEvent.useMutation({
+					onSuccess: async (data) => {
+						await utils.suggestedEvents.getSuggestedEvents.invalidate();
+						router.refresh();
+						toast.success("Rejected Event!");
+					},
+				});
+
 			return (
 				<div className="flex gap-2">
 					<TooltipProvider>
 						<Tooltip>
 							<TooltipTrigger>
-								<Button variant="ghost" className="h-8 w-8 p-0">
+								<Button
+									variant="ghost"
+									className="h-8 w-8 p-0"
+									onClick={() => acceptSuggestedEvent({ id: event.id })}
+									disabled={isAccepting}
+								>
 									<span className="sr-only">Open menu</span>
-									<CheckIcon className="h-4 w-4" />
+									{isAccepting ? (
+										<Loader2 className="h-4 w-4 animate-spin" />
+									) : (
+										<CheckIcon className="h-4 w-4" />
+									)}
 								</Button>
 							</TooltipTrigger>
-							<TooltipContent>Accept Suggested Event</TooltipContent>
+							<TooltipContent>
+								{isAccepting ? "Accepting..." : "Accept Suggested Event"}
+							</TooltipContent>
 						</Tooltip>
 					</TooltipProvider>
 					<TooltipProvider>
 						<Tooltip>
 							<TooltipTrigger>
-								<Button variant="ghost" className="h-8 w-8 p-0">
+								<Button
+									variant="ghost"
+									className="h-8 w-8 p-0"
+									onClick={() => rejectSuggestedEvent({ id: event.id })}
+									disabled={isRejecting}
+								>
 									<span className="sr-only">Open menu</span>
-									<XIcon className="h-4 w-4" />
+									{isRejecting ? (
+										<Loader2 className="h-4 w-4 animate-spin" />
+									) : (
+										<XIcon className="h-4 w-4" />
+									)}
 								</Button>
 							</TooltipTrigger>
-							<TooltipContent>Reject Suggested Event</TooltipContent>
+							<TooltipContent>
+								{isRejecting ? "Rejecting..." : "Reject Suggested Event"}
+							</TooltipContent>
 						</Tooltip>
 					</TooltipProvider>
 					<DropdownMenu>
