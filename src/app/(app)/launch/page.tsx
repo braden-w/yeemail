@@ -1,8 +1,8 @@
 "use client";
-import Image from "next/image";
-import { Logo } from "@/components/Logo";
+
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
+import { MultiStepLoader } from "@/components/ui/multi-step-loader";
 import {
 	Popover,
 	PopoverContent,
@@ -12,10 +12,18 @@ import { trpc } from "@/lib/trpc/client";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
-import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
+
+const loadingStates = [
+	{ text: "Authenticating with Gmail", duration: 2000 },
+	{ text: "Fetching recent emails", duration: 5000 },
+	{ text: "Processing email content", duration: 6000 },
+	{ text: "Extracting relevant information", duration: 8000 },
+	{ text: "Preparing data for display", duration: 3000 },
+];
 
 export default function LandingPage() {
 	const [date, setDate] = useState<Date>();
@@ -42,6 +50,12 @@ export default function LandingPage() {
 
 	return (
 		<div className="flex min-h-screen flex-col">
+			<MultiStepLoader
+				loadingStates={loadingStates}
+				loading={isLaunchingEmails}
+				loop={false}
+			/>
+
 			<main className="flex-1">
 				<section className="w-full py-6 sm:py-12 md:py-24 lg:py-32 xl:py-48">
 					<div className="container px-4 md:px-6">
