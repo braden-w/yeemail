@@ -14,7 +14,7 @@ export const defaultLinks: SidebarLink[] = [
 
 export const additionalLinks: AdditionalLinks[] = [
 	{
-		title: "Entities",
+		title: "Emails",
 		links: [
 			{
 				href: "/emails",
@@ -24,7 +24,7 @@ export const additionalLinks: AdditionalLinks[] = [
 		],
 	},
 	{
-		title: "Suggested Events",
+		title: "Events",
 		links: [
 			{
 				href: "/suggested-events",
