@@ -3,6 +3,7 @@ import { createOpenAI as createGroq } from "@ai-sdk/openai";
 import { generateObject } from "ai";
 import { z } from "zod";
 import { google } from "googleapis";
+import type { SuggestedEvent } from "@/lib/db/schema";
 
 const allEvents = await db.query.suggestedEvents.findMany();
 
@@ -47,42 +48,49 @@ const { object } = await generateObject({
 	prompt: plaintext_prompt,
 });
 
-async function createPotentialEvent(userToken: string, events: any) {
+async function addEventsToCalendar(
+	userToken: string,
+	events: SuggestedEvent[],
+) {
 	// Create a new OAuth2 client with the provided user key
-	const oauth2Client = new google.auth.OAuth2();
-	oauth2Client.setCredentials({ access_token: userToken });
+	const oauth2Client = new google.auth.OAuth2().setCredentials({
+		access_token: userToken,
+	});
 
-	// Create a Calendar client
 	const calendar = google.calendar({ version: "v3", auth: oauth2Client });
 
-	// Collect all created events
-	const createdEvents = [];
-
-	// Loop through each event in the events array
-	for (const description of events) {
+	// Use map to create an array of promises for event creation
+	const createdEventsPromises = events.map(async (description) => {
 		const event = {
-			summary: description.summary,
-			location: description.location,
+			summary: description.title,
+			location: description.location ?? undefined,
 			description: description.description,
-			start: description.start,
-			end: description.end,
+			start: { dateTime: description.start.toISOString() },
+			end: {
+				dateTime: (
+					description.end ??
+					new Date(description.start.getTime() + 60 * 60 * 1000)
+				).toISOString(),
+			},
 			status: "tentative",
 			attendees: [{ email: "bmw02002turbo@gmail.com", self: true }],
 		};
 
 		try {
-			// Insert the event
 			const res = await calendar.events.insert({
 				calendarId: "primary",
-				resource: event,
+				requestBody: event,
 			});
 
 			console.log("Potential event created:", res.data.htmlLink);
-			createdEvents.push(res.data); // Collect created events
+			return res.data;
 		} catch (error) {
 			console.error("Error creating event:", error);
 			throw error;
 		}
-	}
+	});
+
+	// Wait for all events to be created
+	const createdEvents = await Promise.all(createdEventsPromises);
 	return createdEvents; // Return all created events after the loop
 }
