@@ -2,12 +2,9 @@ import { db } from "@/lib/db";
 import { createOpenAI as createGroq } from "@ai-sdk/openai";
 import { generateObject } from "ai";
 import { z } from "zod";
-const fs = require("node:fs");
+import { google } from "googleapis";
 
-const userToken = process.env.USER_KEY;
 const allEvents = await db.query.suggestedEvents.findMany();
-
-const { google } = require('googleapis');
 
 const groq = createGroq({
 	baseURL: "https://api.groq.com/openai/v1",
@@ -19,7 +16,7 @@ You will be given a list of events. Your task is to create a summary and descrip
 
 Here is the list of events:
 <event_list>
-${ JSON.stringify(allEvents) }
+${JSON.stringify(allEvents)}
 </event_list>
 
 Follow these steps:
@@ -32,71 +29,60 @@ Follow these steps:
 `;
 
 const { object } = await generateObject({
-    model: groq('llama-3.1-70b-versatile'),
-    output: 'array',
-    schema: z.object({
-                summary: z.string(),
-                description: z.string(),
-                location: z.string(),
-                start: z.object({
-                    dateTime: z.string(),
-                    timeZone: z.string(),
-                }),
-                end: z.object({
-                    dateTime: z.string(),
-                    timeZone: z.string(),
-                }),
-            }),
-    prompt: plaintext_prompt,
+	model: groq("llama-3.1-70b-versatile"),
+	output: "array",
+	schema: z.object({
+		summary: z.string(),
+		description: z.string(),
+		location: z.string(),
+		start: z.object({
+			dateTime: z.string(),
+			timeZone: z.string(),
+		}),
+		end: z.object({
+			dateTime: z.string(),
+			timeZone: z.string(),
+		}),
+	}),
+	prompt: plaintext_prompt,
 });
 
-async function createPotentialEvent(userToken, events) {
-    // Create a new OAuth2 client with the provided user key
-    const oauth2Client = new google.auth.OAuth2();
-    oauth2Client.setCredentials({ access_token: userToken });
-  
-    // Create a Calendar client
-    const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
-    
-    // Collect all created events
-    const createdEvents = [];
-  
-    // Loop through each event in the events array
-    for (let description of events) {
-      const event = {
-        summary: description.summary,
-        location: description.location,
-        description: description.description,
-        start: description.start,
-        end: description.end,
-        status: 'tentative',
-        attendees: [
-          { email: 'bmw02002turbo@gmail.com', self: true }
-        ]
-      };
-  
-      try {
-        // Insert the event
-        const res = await calendar.events.insert({
-          calendarId: 'primary',
-          resource: event,
-        });
-  
-        console.log('Potential event created:', res.data.htmlLink);
-        createdEvents.push(res.data);  // Collect created events
-      } catch (error) {
-        console.error('Error creating event:', error);
-        throw error;
-      }
-    }
-    return createdEvents;  // Return all created events after the loop
-  }
-  
-  // Usage
-  createPotentialEvent(userToken, object)
-    .then(createdEvents => {
-      console.log('All events created successfully');
-    })
-    .catch(error => {
-      console.error('Failed to create events:', error);
-    });
+async function createPotentialEvent(userToken: string, events: any) {
+	// Create a new OAuth2 client with the provided user key
+	const oauth2Client = new google.auth.OAuth2();
+	oauth2Client.setCredentials({ access_token: userToken });
+
+	// Create a Calendar client
+	const calendar = google.calendar({ version: "v3", auth: oauth2Client });
+
+	// Collect all created events
+	const createdEvents = [];
+
+	// Loop through each event in the events array
+	for (let description of events) {
+		const event = {
+			summary: description.summary,
+			location: description.location,
+			description: description.description,
+			start: description.start,
+			end: description.end,
+			status: "tentative",
+			attendees: [{ email: "bmw02002turbo@gmail.com", self: true }],
+		};
+
+		try {
+			// Insert the event
+			const res = await calendar.events.insert({
+				calendarId: "primary",
+				resource: event,
+			});
+
+			console.log("Potential event created:", res.data.htmlLink);
+			createdEvents.push(res.data); // Collect created events
+		} catch (error) {
+			console.error("Error creating event:", error);
+			throw error;
+		}
+	}
+	return createdEvents; // Return all created events after the loop
+}
