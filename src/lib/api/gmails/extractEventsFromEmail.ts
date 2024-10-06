@@ -1,4 +1,4 @@
-import { NewSuggestedEvent } from "@/lib/db/schema";
+import type { NewSuggestedEvent } from "@/lib/db/schema";
 import type { NewEmail } from "@/lib/db/schema/emails";
 import { env } from "@/lib/env.mjs";
 import { createOpenAI as createGroq } from "@ai-sdk/openai";

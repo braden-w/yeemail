@@ -298,7 +298,7 @@ export function DataTableDemo() {
 										{isRejectingBulk ? (
 											<Loader2 className="h-4 w-4 animate-spin" />
 										) : (
-											<XIcon className="h-4 w-4 mr-2" />
+											<XIcon className="mr-2 h-4 w-4" />
 										)}
 										Reject All
 									</Button>
