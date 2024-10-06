@@ -1,9 +1,7 @@
 import type { NewEmailParams } from "@/lib/db/schema";
 import { type gmail_v1, google } from "googleapis";
 
-type GmailMessage = gmail_v1.Schema$Message;
-
-export async function getGmailsAfterDate({
+async function getGmailsAfterDate({
 	token,
 	maxResults = 75,
 	date,
@@ -63,12 +61,12 @@ function decodeBase64(data: string) {
 	}
 }
 
-function formatEmailJSON(email: GmailMessage): NewEmailParams {
+function formatEmailJSON(email: gmail_v1.Schema$Message): NewEmailParams {
 	const getHeader = (name: string) =>
 		email.payload?.headers?.find((header) => header.name === name)?.value ?? "";
 
 	const getContentAndURL = (
-		message: GmailMessage,
+		message: gmail_v1.Schema$Message,
 	): {
 		rawContent: string;
 		links: string[];
