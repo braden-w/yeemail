@@ -1,6 +1,8 @@
 import {
+	acceptSuggestedEvent,
 	createSuggestedEvent,
 	deleteSuggestedEvent,
+	rejectSuggestedEvent,
 	updateSuggestedEvent,
 } from "@/lib/api/suggestedEvents/mutations";
 import {
@@ -37,5 +39,16 @@ export const suggestedEventsRouter = router({
 		.input(suggestedEventIdSchema)
 		.mutation(async ({ input }) => {
 			return deleteSuggestedEvent(input.id);
+		}),
+
+	acceptSuggestedEvent: publicProcedure
+		.input(suggestedEventIdSchema)
+		.mutation(async ({ input }) => {
+			return acceptSuggestedEvent(input.id);
+		}),
+	rejectSuggestedEvent: publicProcedure
+		.input(suggestedEventIdSchema)
+		.mutation(async ({ input }) => {
+			return rejectSuggestedEvent(input.id);
 		}),
 });
