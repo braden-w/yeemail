@@ -84,7 +84,7 @@ Ensure that your output strictly follows the format specified above, as it will 
 `;
 
 	const { object } = await generateObject({
-		model: groq("llama-3.1-70b-versatile"),
+		model: groq("llama-3.1-8b-instant"),
 		output: "array",
 		schema: z.object({
 			name: z.string(),

@@ -30,7 +30,7 @@ Follow these steps:
 `;
 
 const { object } = await generateObject({
-	model: groq("llama-3.1-70b-versatile"),
+	model: groq("llama-3.1-8b-instant"),
 	output: "array",
 	schema: z.object({
 		summary: z.string(),
