@@ -14,7 +14,6 @@ const Sidebar = async () => {
 		<aside className="hidden h-screen min-w-52 border-border border-r bg-muted p-4 pt-8 shadow-inner md:block">
 			<div className="flex h-full flex-col justify-between">
 				<div className="space-y-4">
-					<Logo />
 					<SidebarItems />
 				</div>
 				<UserDetails session={session} />
