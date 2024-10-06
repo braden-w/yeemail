@@ -1,99 +1,58 @@
+import { type gmail_v1, google } from "googleapis";
 import {
 	createEmail,
 	createMultipleEmails,
 } from "src/lib/api/emails/mutations";
-import { z } from "zod";
 
 // Helper function to decode base64 URL-safe encoding
 function decodeBase64(data: string) {
 	try {
-		return atob(data.replace(/_/g, "/").replace(/-/g, "+"));
+		return Buffer.from(data, "base64").toString("utf-8");
 	} catch (e) {
 		console.error("Error decoding base64 data: ", e);
 		return "";
 	}
 }
 
-const GmailMessageSchema = z.object({
-	id: z.string(),
-	threadId: z.string(),
-	payload: z.object({
-		headers: z.array(
-			z.object({
-				name: z.string(),
-				value: z.string(),
-			}),
-		),
-		parts: z
-			.array(
-				z.object({
-					mimeType: z.string(),
-					body: z
-						.object({
-							data: z.string().optional(),
-						})
-						.optional(),
-					parts: z.array(z.unknown()).optional(),
-				}),
-			)
-			.optional(),
-		body: z
-			.object({
-				data: z.string().optional(),
-			})
-			.optional(),
-	}),
-	internalDate: z.string(),
-});
-
-type GmailMessage = z.infer<typeof GmailMessageSchema>;
+type GmailMessage = gmail_v1.Schema$Message;
 
 async function getGmailEmails(
 	token: string,
 	maxResults = 75,
 ): Promise<GmailMessage[]> {
-	const baseUrl = "https://gmail.googleapis.com/gmail/v1/users/me/messages";
-	const headers = { Authorization: `Bearer ${token}` };
+	const oauth2Client = new google.auth.OAuth2();
+	oauth2Client.setCredentials({ access_token: token });
+
+	const gmail = google.gmail({ version: "v1", auth: oauth2Client });
 	const emails: GmailMessage[] = [];
 
 	try {
-		const response = await fetch(`${baseUrl}?maxResults=${maxResults}`, {
-			headers,
+		const response = await gmail.users.messages.list({
+			userId: "me",
+			maxResults,
 		});
-		if (!response.ok) {
-			throw new Error(
-				`Error fetching email list: ${response.status} ${await response.text()}`,
-			);
+
+		const messages = response.data.messages;
+		if (!messages) {
+			console.log("No messages found.");
+			return [];
 		}
 
-		const data = await response.json();
-		const responseSchema = z.object({
-			messages: z.array(
-				z.object({
-					id: z.string(),
-					threadId: z.string(),
-				}),
-			),
-		});
-		const parsedData = responseSchema.parse(data);
-		const messages = parsedData.messages;
 		console.log("🚀 ~ fetchGmailEmails ~ messages:", messages);
 
-		// Fetch email details for each ID
 		for (const msg of messages) {
-			const emailId = msg.id;
-			const emailUrl = `${baseUrl}/${emailId}`;
-			const emailResponse = await fetch(emailUrl, { headers });
-			if (emailResponse.ok) {
-				const emailData = await emailResponse.json();
-				const parsedEmailData = GmailMessageSchema.parse(emailData);
-				emails.push(parsedEmailData);
-			} else {
-				console.error(
-					`Error fetching email ${emailId}: ${emailResponse.status}`,
-				);
+			if (msg.id) {
+				const emailResponse = await gmail.users.messages.get({
+					userId: "me",
+					id: msg.id,
+				});
+
+				if (emailResponse.data) {
+					emails.push(emailResponse.data);
+				}
 			}
 		}
+
 		return emails;
 	} catch (error) {
 		console.error(
@@ -112,22 +71,21 @@ function getContentAndURL(message: GmailMessage): [string, string[]] {
 		let match: RegExpExecArray | null;
 
 		while ((match = urlRegex.exec(html)) !== null) {
-			const url = match[2];
-			links.push(url);
+			links.push(match[2]);
 		}
 		return links;
 	}
 	// Helper function to extract raw message parts (text/plain or text/html)
-	function getMessageBody(payload: GmailMessage["payload"]): [string, string] {
+	function getMessageBody(
+		payload: gmail_v1.Schema$MessagePart | undefined,
+	): [string, string] {
 		let body = "";
 		let html = "";
-		if (payload.parts) {
+		if (payload?.parts) {
 			for (const part of payload.parts) {
 				if (part.parts) {
 					// Recursively extract parts if there are nested parts
-					const [nestedBody, nestedHtml] = getMessageBody(
-						part as GmailMessage["payload"],
-					);
+					const [nestedBody, nestedHtml] = getMessageBody(part);
 					body += nestedBody;
 					html += nestedHtml;
 				} else if (part.mimeType === "text/plain") {
@@ -140,7 +98,7 @@ function getContentAndURL(message: GmailMessage): [string, string[]] {
 					}
 				}
 			}
-		} else if (payload.body?.data) {
+		} else if (payload?.body?.data) {
 			// If there's no 'parts', just grab the data from the payload body
 			body = decodeBase64(payload.body.data);
 		}
@@ -153,34 +111,32 @@ function getContentAndURL(message: GmailMessage): [string, string[]] {
 	return [rawBody, urls];
 }
 
-const FormattedEmailSchema = z.object({
-	subject: z.string(),
-	content: z.string(),
-	sender: z.string(),
-	receivedAt: z.date(),
-	links: z.string(),
-});
-
-type FormattedEmail = z.infer<typeof FormattedEmailSchema>;
+interface FormattedEmail {
+	subject: string;
+	content: string;
+	sender: string;
+	receivedAt: string;
+	links: string;
+}
 
 function formatEmailJSON(emails: GmailMessage[]): FormattedEmail[] {
 	const emailData: FormattedEmail[] = [];
 	for (const email of emails) {
 		const subject =
-			email.payload.headers.find((header) => header.name === "Subject")
+			email.payload?.headers?.find((header) => header.name === "Subject")
 				?.value ?? "";
 		const sender =
-			email.payload.headers.find((header) => header.name === "From")?.value ??
+			email.payload?.headers?.find((header) => header.name === "From")?.value ??
 			"";
-		const dateTime = new Date(parseInt(email.internalDate, 10));
+		const dateTime = new Date(Number(email.internalDate)).toISOString();
 		const [rawContent, links] = getContentAndURL(email);
-		const formatted = FormattedEmailSchema.parse({
+		const formatted: FormattedEmail = {
 			subject,
 			content: rawContent,
 			sender,
 			receivedAt: dateTime,
 			links: JSON.stringify(links),
-		});
+		};
 		emailData.push(formatted);
 	}
 	return emailData;
