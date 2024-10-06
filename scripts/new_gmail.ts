@@ -50,6 +50,64 @@ export async function getGmailEmails({
 				email.payload?.headers?.find((header) => header.name === name)?.value ??
 				"";
 
+			const getContentAndURL = (
+				message: GmailMessage,
+			): {
+				rawContent: string;
+				links: string[];
+			} => {
+				// HTML scraper function to search for hyperlinks
+				const scrapeHyperlinks = (html: string): string[] => {
+					const urlRegex = /<a\s+(?:[^>]*?\s+)?href=(["'])(.*?)\1/gi;
+					const links: string[] = [];
+					let match: RegExpExecArray | null;
+
+					while ((match = urlRegex.exec(html)) !== null) {
+						links.push(match[2]);
+					}
+					return links;
+				};
+
+				// Helper function to extract raw message parts (text/plain or text/html)
+				const getMessageBody = (
+					payload: gmail_v1.Schema$MessagePart | undefined,
+				): {
+					body: string;
+					html: string;
+				} => {
+					let body = "";
+					let html = "";
+					if (payload?.parts) {
+						for (const part of payload.parts) {
+							if (part.parts) {
+								// Recursively extract parts if there are nested parts
+								const { body: nestedBody, html: nestedHtml } =
+									getMessageBody(part);
+								body += nestedBody;
+								html += nestedHtml;
+							} else if (part.mimeType === "text/plain") {
+								if (part.body?.data) {
+									body += decodeBase64(part.body.data);
+								}
+							} else if (part.mimeType === "text/html") {
+								if (part.body?.data) {
+									html += decodeBase64(part.body.data);
+								}
+							}
+						}
+					} else if (payload?.body?.data) {
+						// If there's no 'parts', just grab the data from the payload body
+						body = decodeBase64(payload.body.data);
+					}
+					return { body, html };
+				};
+
+				// Get the payload of the message
+				const payload = message.payload;
+				const { body, html } = getMessageBody(payload);
+				const urls = scrapeHyperlinks(html);
+				return { rawContent: body, links: urls };
+			};
 			const { rawContent, links } = getContentAndURL(email);
 
 			return {
@@ -82,58 +140,6 @@ export async function getGmailEmails({
 		);
 		return [];
 	}
-}
-
-function getContentAndURL(message: GmailMessage): {
-	rawContent: string;
-	links: string[];
-} {
-	// HTML scraper function to search for hyperlinks
-	function scrapeHyperlinks(html: string): string[] {
-		const urlRegex = /<a\s+(?:[^>]*?\s+)?href=(["'])(.*?)\1/gi;
-		const links: string[] = [];
-		let match: RegExpExecArray | null;
-
-		while ((match = urlRegex.exec(html)) !== null) {
-			links.push(match[2]);
-		}
-		return links;
-	}
-	// Helper function to extract raw message parts (text/plain or text/html)
-	function getMessageBody(payload: gmail_v1.Schema$MessagePart | undefined): {
-		body: string;
-		html: string;
-	} {
-		let body = "";
-		let html = "";
-		if (payload?.parts) {
-			for (const part of payload.parts) {
-				if (part.parts) {
-					// Recursively extract parts if there are nested parts
-					const { body: nestedBody, html: nestedHtml } = getMessageBody(part);
-					body += nestedBody;
-					html += nestedHtml;
-				} else if (part.mimeType === "text/plain") {
-					if (part.body?.data) {
-						body += decodeBase64(part.body.data);
-					}
-				} else if (part.mimeType === "text/html") {
-					if (part.body?.data) {
-						html += decodeBase64(part.body.data);
-					}
-				}
-			}
-		} else if (payload?.body?.data) {
-			// If there's no 'parts', just grab the data from the payload body
-			body = decodeBase64(payload.body.data);
-		}
-		return { body, html };
-	}
-	// Get the payload of the message
-	const payload = message.payload;
-	const { body, html } = getMessageBody(payload);
-	const urls = scrapeHyperlinks(html);
-	return { rawContent: body, links: urls };
 }
 
 async function insertAllEmails({
