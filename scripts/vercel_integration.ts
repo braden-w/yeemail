@@ -1,15 +1,16 @@
 import type { Email } from "@/lib/db/schema/emails";
+import { env } from "@/lib/env.mjs";
 import { createOpenAI as createGroq } from "@ai-sdk/openai";
 import { generateObject } from "ai";
 import { parseDate } from "chrono-node";
 import { z } from "zod";
 
-const groq = createGroq({
-	baseURL: "https://api.groq.com/openai/v1",
-	apiKey: process.env.GROQ_API_KEY,
-});
-
 async function extractEventsFromEmail(email: Email) {
+	const groq = createGroq({
+		baseURL: "https://api.groq.com/openai/v1",
+		apiKey: env.GROQ_API_KEY,
+	});
+
 	const { content, ...metadata } = email;
 	const plaintext_prompt = `
 You will be given an email with metadata and content. Your task is to read the content and identify any events or meetings mentioned, then extract information about these events. Do not attempt to calculate dates or times. Instead, include relevant excerpts from the original text for dates and times. These will be processed by an external library.
