@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -41,23 +42,6 @@ export default function LandingPage() {
 
 	return (
 		<div className="flex min-h-screen flex-col">
-			<header className="flex h-14 items-center px-4 lg:px-6">
-				<Logo />
-				<nav className="ml-auto flex gap-4 sm:gap-6">
-					<Link
-						className="font-medium text-sm underline-offset-4 hover:underline"
-						href="#features"
-					>
-						Features
-					</Link>
-					<Link
-						className="font-medium text-sm underline-offset-4 hover:underline"
-						href="/sign-in"
-					>
-						Sign In
-					</Link>
-				</nav>
-			</header>
 			<main className="flex-1">
 				<section className="w-full py-6 sm:py-12 md:py-24 lg:py-32 xl:py-48">
 					<div className="container px-4 md:px-6">
@@ -116,9 +100,13 @@ export default function LandingPage() {
 									</Button>
 								</div>
 							</div>
-							<div className="mx-auto aspect-video overflow-hidden rounded-xl bg-gray-200 object-cover sm:w-full lg:order-last lg:aspect-square">
-								{/* Placeholder for an illustrative image or animation */}
-							</div>
+							<Image
+								src="/logo.jpg"
+								alt="EventFlow illustration"
+								width={700} // Adjust as needed
+								height={500} // Adjust as needed
+								className="mx-auto aspect-video overflow-hidden rounded-xl object-cover sm:w-full lg:order-last lg:aspect-square"
+							/>
 						</div>
 					</div>
 				</section>
