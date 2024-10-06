@@ -6,6 +6,7 @@ import {
 	updateSuggestedEvent,
 } from "@/lib/api/suggestedEvents/mutations";
 import {
+	getPendingSuggestedEvents,
 	getSuggestedEventById,
 	getSuggestedEvents,
 } from "@/lib/api/suggestedEvents/queries";
@@ -25,6 +26,9 @@ export const suggestedEventsRouter = router({
 		.query(async ({ input }) => {
 			return getSuggestedEventById(input.id);
 		}),
+	getPendingSuggestedEvents: publicProcedure.query(async () => {
+		return getPendingSuggestedEvents();
+	}),
 	createSuggestedEvent: publicProcedure
 		.input(insertSuggestedEventParams)
 		.mutation(async ({ input }) => {
