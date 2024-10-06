@@ -48,15 +48,9 @@ export default async function LandingPage() {
 								<div className="flex flex-col gap-2 min-[400px]:flex-row">
 									<Link
 										className="inline-flex h-10 items-center justify-center rounded-md bg-neutral-900 px-8 font-medium text-neutral-50 text-sm shadow transition-colors hover:bg-neutral-900/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-950 disabled:pointer-events-none disabled:opacity-50 dark:bg-neutral-50 dark:text-neutral-900 dark:focus-visible:ring-neutral-300 dark:hover:bg-neutral-50/90"
-										href="#"
+										href="/launch"
 									>
 										Get Started
-									</Link>
-									<Link
-										className="inline-flex h-10 items-center justify-center rounded-md border border-neutral-200 bg-white px-8 font-medium text-sm shadow-sm transition-colors hover:bg-neutral-100 hover:text-neutral-900 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-950 disabled:pointer-events-none disabled:opacity-50 dark:border-neutral-800 dark:bg-neutral-950 dark:focus-visible:ring-neutral-300 dark:hover:bg-neutral-800 dark:hover:text-neutral-50"
-										href="#"
-									>
-										Contact Sales
 									</Link>
 								</div>
 							</div>
