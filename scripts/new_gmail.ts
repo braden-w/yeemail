@@ -1,3 +1,5 @@
+import { z } from "zod";
+
 // Usage
 const userToken = process.env.USER_KEY;
 const fs = require("node:fs");
@@ -16,20 +18,12 @@ function decodeBase64(data) {
 	}
 }
 
-// Fetch emails from Gmail API
-async function fetchGmailEmails(token, maxResults = 75) {
+async function getGmailEmails(token: string, maxResults = 75) {
 	const baseUrl = "https://gmail.googleapis.com/gmail/v1/users/me/messages";
 	const headers = { Authorization: `Bearer ${token}` };
 	const emails = [];
 
-	// Cap max results at 75
-	if (maxResults > 75) {
-		console.error("Error: maxResults must be less than or equal to 100.");
-		maxResults = 75;
-	}
-
 	try {
-		// Fetch list of email IDs
 		const response = await fetch(`${baseUrl}?maxResults=${maxResults}`, {
 			headers,
 		});
@@ -40,7 +34,16 @@ async function fetchGmailEmails(token, maxResults = 75) {
 		}
 
 		const data = await response.json();
-		const messages = data.messages || [];
+		const responseSchema = z.object({
+			messages: z.array(
+				z.object({
+					id: z.string(),
+					threadId: z.string(),
+				}),
+			),
+		});
+		const messages = data.messages ?? [];
+		console.log("🚀 ~ fetchGmailEmails ~ messages:", messages);
 
 		// Fetch email details for each ID
 		for (const msg of messages) {
@@ -63,7 +66,7 @@ async function fetchGmailEmails(token, maxResults = 75) {
 	}
 }
 
-function ContentAndURL(message) {
+function getContentAndURL(message) {
 	// HTML scraper function to search for hyperlinks
 	function scrapeHyperlinks(html) {
 		const urlRegex = /<a\s+(?:[^>]*?\s+)?href=(["'])(.*?)\1/gi;
@@ -119,7 +122,7 @@ function formatEmailJSON(emails) {
 			(header) => header.name === "From",
 		).value;
 		const dateTime = new Date(parseInt(email.internalDate));
-		const [rawContent, links] = ContentAndURL(email);
+		const [rawContent, links] = getContentAndURL(email);
 		const formatted = {
 			subject,
 			content: rawContent,
@@ -136,16 +139,8 @@ async function insertAllEmails({
 	userToken,
 	maxResults,
 }: { userToken: string; maxResults: number }) {
-	if (maxResults > 75) {
-		console.error("Error: Max results must be less than or equal to 75.");
-		maxResults = 75;
-	}
-	if (!userToken) {
-		console.error("Error: User token is required.");
-		return;
-	}
 	// Fetch emails from Gmail API
-	const emails = await fetchGmailEmails(userToken, maxResults)
+	const emails = await getGmailEmails(userToken, maxResults)
 
 		// print out the subject, sender, date/time, and content of each email
 		.then((emails) => {
@@ -166,7 +161,7 @@ async function insertOneEmail(userToken) {
 		return;
 	}
 	// Fetch emails from Gmail API
-	const emails = await fetchGmailEmails(userToken, 1)
+	const emails = await getGmailEmails(userToken, 1)
 
 		// print out the subject, sender, date/time, and content of each email
 		.then((emails) => {
