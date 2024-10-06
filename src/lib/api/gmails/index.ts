@@ -1,13 +1,17 @@
 import { getUserAuth } from "@/lib/auth/utils";
 import { db } from "@/lib/db";
-import { type NewEmail, emails, suggestedEvents } from "@/lib/db/schema";
-import { Effect } from "effect";
+import {
+	type NewEmail,
+	type NewSuggestedEvent,
+	emails,
+	suggestedEvents,
+} from "@/lib/db/schema";
 import { extractEventsFromEmail } from "./extractEventsFromEmail";
 import { getGmailsAfterDate } from "./getGmailsAfterDate";
 
 export async function processGmailsAfterDate({
 	token,
-	maxResults = 75,
+	maxResults = 5,
 	date,
 }: {
 	token: string;
@@ -22,17 +26,20 @@ export async function processGmailsAfterDate({
 		receivedAt: new Date(email.receivedAt),
 	}));
 	const insertedEmails = await db.insert(emails).values(newEmails).returning();
-	const extractedEvents = (
-		await Effect.all(
-			newEmails.map((email) =>
-				Effect.tryPromise(() => extractEventsFromEmail(email)),
-			),
-			{ concurrency: 10 },
-		).pipe(Effect.runPromise)
-	).flat();
-	const insertedEvents = await db
-		.insert(suggestedEvents)
-		.values(extractedEvents)
-		.returning();
+	// const extractedEvents: NewSuggestedEvent[] = [];
+	const insertedEvents: NewSuggestedEvent[] = [];
+	for (const email of newEmails) {
+		const events = await extractEventsFromEmail(email);
+		if (events.length === 0) {
+			continue;
+		}
+		// extractedEvents.push(...events);
+		const ie = await db.insert(suggestedEvents).values(events).returning();
+		insertedEvents.push(...ie);
+	}
+	// const insertedEvents = await db
+	// 	.insert(suggestedEvents)
+	// 	.values(extractedEvents)
+	// 	.returning();
 	return { emails: insertedEmails, events: insertedEvents };
 }
