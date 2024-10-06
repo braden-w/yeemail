@@ -13,7 +13,7 @@ export const savedEvents = pgTable("saved_events", {
 		.$defaultFn(() => nanoid()),
 	title: text("title"),
 	description: text("description"),
-	suggestedEventId: varchar("raw_event_id", { length: 256 })
+	suggestedEventId: varchar("suggested_event_id", { length: 256 })
 		.references(() => suggestedEvents.id, { onDelete: "cascade" })
 		.notNull(),
 

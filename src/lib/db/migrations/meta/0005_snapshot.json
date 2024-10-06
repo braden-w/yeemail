@@ -1,6 +1,6 @@
 {
-	"id": "aa800533-827b-4acb-9e60-43686f8b92fa",
-	"prevId": "9eb07de8-8411-43c4-9892-17c1797ecb7f",
+	"id": "60c85e98-0b99-4e08-8fb2-ba1a8f4a21f3",
+	"prevId": "aa800533-827b-4acb-9e60-43686f8b92fa",
 	"version": "7",
 	"dialect": "postgresql",
 	"tables": {
@@ -277,8 +277,8 @@
 					"primaryKey": false,
 					"notNull": false
 				},
-				"raw_event_id": {
-					"name": "raw_event_id",
+				"suggested_event_id": {
+					"name": "suggested_event_id",
 					"type": "varchar(256)",
 					"primaryKey": false,
 					"notNull": true
@@ -300,11 +300,11 @@
 			},
 			"indexes": {},
 			"foreignKeys": {
-				"saved_events_raw_event_id_suggested_events_id_fk": {
-					"name": "saved_events_raw_event_id_suggested_events_id_fk",
+				"saved_events_suggested_event_id_suggested_events_id_fk": {
+					"name": "saved_events_suggested_event_id_suggested_events_id_fk",
 					"tableFrom": "saved_events",
 					"tableTo": "suggested_events",
-					"columnsFrom": ["raw_event_id"],
+					"columnsFrom": ["suggested_event_id"],
 					"columnsTo": ["id"],
 					"onDelete": "cascade",
 					"onUpdate": "no action"
