@@ -13,12 +13,13 @@ export async function getGmailEmails({
 	const gmail = google.gmail({ version: "v1", auth: oauth2Client });
 
 	try {
-		const response = await gmail.users.messages.list({
+		const {
+			data: { messages },
+		} = await gmail.users.messages.list({
 			userId: "me",
 			maxResults,
 		});
 
-		const messages = response.data.messages;
 		if (!messages) {
 			console.log("No messages found.");
 			return [];
