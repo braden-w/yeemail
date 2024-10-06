@@ -11,9 +11,8 @@ export const launchRouter = router({
 			if (!session) {
 				throw new Error("User not authenticated");
 			}
-			const { googleAccessToken } = session.user;
 			const { emails, events } = await processGmailsAfterDate({
-				token: googleAccessToken,
+				token: session.user.googleAccessToken,
 				date: input.startDate,
 			});
 			return { emails, events };
