@@ -5,6 +5,7 @@ import {
 	updateSavedEvent,
 } from "@/lib/api/savedEvents/mutations";
 import {
+	getPendingSavedEvents,
 	getSavedEventById,
 	getSavedEvents,
 } from "@/lib/api/savedEvents/queries";
@@ -19,6 +20,9 @@ import { z } from "zod";
 export const savedEventsRouter = router({
 	getSavedEvents: publicProcedure.query(async () => {
 		return getSavedEvents();
+	}),
+	getPendingSavedEvents: publicProcedure.query(async () => {
+		return getPendingSavedEvents();
 	}),
 	getSavedEventById: publicProcedure
 		.input(savedEventIdSchema)

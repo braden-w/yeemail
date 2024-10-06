@@ -90,6 +90,7 @@ export const bulkExportSavedEvents = async (ids: SavedEventId[]) => {
 			.select()
 			.from(savedEvents)
 			.where(inArray(savedEvents.id, ids));
+		await db.update(savedEvents).set({ status: "pending" }).where(inArray(savedEvents.id, ids));
 		await addEventsToCalendar({
 			userToken: session.user.googleAccessToken,
 			events: s,
