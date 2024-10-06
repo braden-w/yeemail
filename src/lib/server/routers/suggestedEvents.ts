@@ -24,14 +24,14 @@ export const suggestedEventsRouter = router({
 	getSuggestedEvents: publicProcedure.query(async () => {
 		return getSuggestedEvents();
 	}),
+	getPendingSuggestedEvents: publicProcedure.query(async () => {
+		return getPendingSuggestedEvents();
+	}),
 	getSuggestedEventById: publicProcedure
 		.input(suggestedEventIdSchema)
 		.query(async ({ input }) => {
 			return getSuggestedEventById(input.id);
 		}),
-	getPendingSuggestedEvents: publicProcedure.query(async () => {
-		return getPendingSuggestedEvents();
-	}),
 	createSuggestedEvent: publicProcedure
 		.input(insertSuggestedEventParams)
 		.mutation(async ({ input }) => {
