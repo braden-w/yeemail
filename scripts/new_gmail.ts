@@ -16,10 +16,10 @@ function decodeBase64(data: string) {
 
 type GmailMessage = gmail_v1.Schema$Message;
 
-async function getGmailEmails(
-	token: string,
+export async function getGmailEmails({
+	token,
 	maxResults = 75,
-): Promise<GmailMessage[]> {
+}: { token: string; maxResults?: number }): Promise<GmailMessage[]> {
 	const oauth2Client = new google.auth.OAuth2();
 	oauth2Client.setCredentials({ access_token: token });
 
@@ -148,7 +148,7 @@ async function insertAllEmails({
 }: { userToken: string; maxResults: number }) {
 	try {
 		// Fetch emails from Gmail API
-		const emails = await getGmailEmails(userToken, maxResults);
+		const emails = await getGmailEmails({ token: userToken, maxResults });
 		const emailData = formatEmailJSON(emails);
 		const result = await createMultipleEmails(emailData);
 		console.log(`${result.emails.length} emails inserted successfully.`);
@@ -167,7 +167,7 @@ async function insertOneEmail(userToken: string) {
 	}
 	try {
 		// Fetch emails from Gmail API
-		const emails = await getGmailEmails(userToken, 1);
+		const emails = await getGmailEmails({ token: userToken, maxResults: 1 });
 		const emailData = formatEmailJSON(emails);
 		if (emailData.length > 0) {
 			const result = await createEmail(emailData[0]);
@@ -184,5 +184,5 @@ async function insertOneEmail(userToken: string) {
 }
 
 // Usage
-insertAllEmails({ userToken: process.env.USER_KEY ?? "", maxResults: 2 });
+// insertAllEmails({ userToken: process.env.USER_KEY ?? "", maxResults: 2 });
 //insertOneEmail(process.env.USER_KEY ?? "");
