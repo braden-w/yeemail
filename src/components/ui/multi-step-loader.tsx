@@ -1,6 +1,7 @@
 "use client";
 import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 
 const CheckIcon = ({ className }: { className?: string }) => {
@@ -93,36 +94,44 @@ const LoaderCore = ({
 export const MultiStepLoader = ({
 	loadingStates,
 	loading,
-	loop = true,
+	loop = false,
 }: {
 	loadingStates: LoadingState[];
 	loading?: boolean;
 	loop?: boolean;
 }) => {
 	const [currentState, setCurrentState] = useState(0);
+	const [isComplete, setIsComplete] = useState(false);
+	const router = useRouter();
 
 	useEffect(() => {
 		if (!loading) {
 			setCurrentState(0);
+			setIsComplete(false);
 			return;
 		}
 
 		const currentDuration = loadingStates[currentState].duration;
 
 		const timeout = setTimeout(() => {
-			setCurrentState((prevState) =>
-				loop
-					? (prevState + 1) % loadingStates.length
-					: Math.min(prevState + 1, loadingStates.length - 1),
-			);
+			if (currentState === loadingStates.length - 1 && !loop) {
+				setIsComplete(true);
+				router.push("/suggested-events");
+			} else {
+				setCurrentState((prevState) =>
+					loop
+						? (prevState + 1) % loadingStates.length
+						: Math.min(prevState + 1, loadingStates.length - 1),
+				);
+			}
 		}, currentDuration);
 
 		return () => clearTimeout(timeout);
-	}, [currentState, loading, loop, loadingStates]);
+	}, [currentState, loading, loadingStates, router, loop]);
 
 	return (
 		<AnimatePresence mode="wait">
-			{loading && (
+			{loading && !isComplete && (
 				<motion.div
 					initial={{
 						opacity: 0,
