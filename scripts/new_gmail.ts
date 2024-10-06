@@ -127,9 +127,8 @@ export async function getGmailEmails({
 				});
 				return formatEmailJSON(emailResponse.data);
 			}),
-		);
-
-		return emails.filter((email): email is FormattedEmail => email !== null);
+		).then((emails) => emails.filter((email) => email !== null));
+		return emails;
 	} catch (error) {
 		console.error(
 			"Error:",
