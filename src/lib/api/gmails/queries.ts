@@ -1,5 +1,27 @@
-import type { NewEmailParams } from "@/lib/db/schema";
+import { getUserAuth } from "@/lib/auth/utils";
+import { db } from "@/lib/db";
+import { emails, type NewEmailParams } from "@/lib/db/schema";
 import { type gmail_v1, google } from "googleapis";
+
+export async function processGmailsAfterDate({
+	token,
+	maxResults = 75,
+	date,
+}: {
+	token: string;
+	maxResults?: number;
+	date: Date;
+}): Promise<NewEmailParams[]> {
+	const { session } = await getUserAuth();
+	const gmails = await getGmailsAfterDate({ token, maxResults, date });
+	const newEmails = gmails.map((email) => ({
+		...email,
+		userId: session?.user?.id!,
+		receivedAt: new Date(email.receivedAt),
+	}));
+	const e = await db.insert(emails).values(newEmails).returning();
+	return { gmails: e };
+}
 
 async function getGmailsAfterDate({
 	token,
