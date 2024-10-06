@@ -53,62 +53,6 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 
-const locations = [
-	"Virtual",
-	"Conference Center",
-	"University Auditorium",
-	"City Park",
-	"Community Center",
-	"Local Library",
-	"Art Gallery",
-	"Sports Arena",
-	"Hotel Ballroom",
-	"Outdoor Amphitheater",
-];
-
-const eventTitles = [
-	"Tech Innovation Summit",
-	"Annual Charity Gala",
-	"Environmental Awareness Workshop",
-	"Local Food Festival",
-	"Career Development Seminar",
-	"Fitness and Wellness Expo",
-	"Art and Culture Symposium",
-	"Music in the Park",
-	"Entrepreneurship Bootcamp",
-	"Science Fair for Kids",
-];
-
-function randomDate(start: Date, end: Date): Date {
-	return new Date(
-		start.getTime() + Math.random() * (end.getTime() - start.getTime()),
-	);
-}
-
-export const sampleSuggestedEvents: SuggestedEvent[] = Array.from(
-	{ length: 20 },
-	(_, index) => {
-		const startDate = randomDate(new Date(2024, 0, 1), new Date(2024, 11, 31));
-		const endDate = new Date(
-			startDate.getTime() + Math.random() * 1000 * 60 * 60 * 8,
-		); // Up to 8 hours later
-
-		return {
-			id: nanoid(),
-			title: `${eventTitles[index % eventTitles.length]} ${index + 1}`,
-			description: `This is a sample description for the ${eventTitles[index % eventTitles.length]} event.`,
-			start: startDate,
-			end: endDate,
-			location: locations[Math.floor(Math.random() * locations.length)],
-			createdAt: new Date(),
-			updatedAt: new Date(),
-			associatedOrganization: "Sample Organization",
-			registrationLink: "https://example.com",
-			status: "pending",
-		};
-	},
-);
-
 export const columns: ColumnDef<SuggestedEvent>[] = [
 	{
 		id: "select",
@@ -176,7 +120,7 @@ export const columns: ColumnDef<SuggestedEvent>[] = [
 			const { mutate: acceptSuggestedEvent, isLoading: isAccepting } =
 				trpc.suggestedEvents.acceptSuggestedEvent.useMutation({
 					onSuccess: async (data) => {
-						await utils.suggestedEvents.getSuggestedEvents.invalidate();
+						await utils.suggestedEvents.getPendingSuggestedEvents.invalidate();
 						router.refresh();
 						toast.success("Accepted Event!");
 					},
@@ -185,7 +129,7 @@ export const columns: ColumnDef<SuggestedEvent>[] = [
 			const { mutate: rejectSuggestedEvent, isLoading: isRejecting } =
 				trpc.suggestedEvents.rejectSuggestedEvent.useMutation({
 					onSuccess: async (data) => {
-						await utils.suggestedEvents.getSuggestedEvents.invalidate();
+						await utils.suggestedEvents.getPendingSuggestedEvents.invalidate();
 						router.refresh();
 						toast.success("Rejected Event!");
 					},
@@ -263,6 +207,8 @@ export const columns: ColumnDef<SuggestedEvent>[] = [
 ];
 
 export default function SuggestedEvents() {
+	const { data, isLoading } =
+		trpc.suggestedEvents.getPendingSuggestedEvents.useQuery();
 	return (
 		<div className="flex min-h-screen flex-col">
 			<main className="flex-1">
@@ -271,7 +217,7 @@ export default function SuggestedEvents() {
 						<h1 className="mb-6 font-bold text-3xl tracking-tighter sm:text-4xl">
 							Suggested Events
 						</h1>
-						<DataTableDemo />
+						<DataTableDemo data={data?.pendingSuggestedEvents ?? []} />
 					</div>
 				</section>
 			</main>
@@ -282,14 +228,18 @@ export default function SuggestedEvents() {
 	);
 }
 
-export function DataTableDemo() {
+export function DataTableDemo({
+	data,
+}: {
+	data: SuggestedEvent[];
+}) {
 	const [sorting, setSorting] = useState<SortingState>([]);
 	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 	const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
 	const [rowSelection, setRowSelection] = useState({});
 
 	const table = useReactTable({
-		data: sampleSuggestedEvents,
+		data,
 		columns,
 		onSortingChange: setSorting,
 		onColumnFiltersChange: setColumnFilters,
