@@ -18,11 +18,11 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 const loadingStates = [
-	{ text: "Authenticating with Gmail" },
-	{ text: "Fetching recent emails" },
-	{ text: "Processing email content" },
-	{ text: "Extracting relevant information" },
-	{ text: "Preparing data for display" },
+	{ text: "Authenticating with Gmail", duration: 2000 },
+	{ text: "Fetching recent emails", duration: 5000 },
+	{ text: "Processing email content", duration: 7000 },
+	{ text: "Extracting relevant information", duration: 9000 },
+	{ text: "Preparing data for display", duration: 4000 },
 ];
 
 export default function LandingPage() {
@@ -53,7 +53,6 @@ export default function LandingPage() {
 			<MultiStepLoader
 				loadingStates={loadingStates}
 				loading={isLaunchingEmails}
-				duration={2000}
 				loop={false}
 			/>
 

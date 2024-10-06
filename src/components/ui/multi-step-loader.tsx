@@ -37,6 +37,7 @@ const CheckFilled = ({ className }: { className?: string }) => {
 
 type LoadingState = {
 	text: string;
+	duration: number;
 };
 
 const LoaderCore = ({
@@ -92,12 +93,10 @@ const LoaderCore = ({
 export const MultiStepLoader = ({
 	loadingStates,
 	loading,
-	duration = 2000,
 	loop = true,
 }: {
 	loadingStates: LoadingState[];
 	loading?: boolean;
-	duration?: number;
 	loop?: boolean;
 }) => {
 	const [currentState, setCurrentState] = useState(0);
@@ -107,18 +106,20 @@ export const MultiStepLoader = ({
 			setCurrentState(0);
 			return;
 		}
+
+		const currentDuration = loadingStates[currentState].duration;
+
 		const timeout = setTimeout(() => {
 			setCurrentState((prevState) =>
 				loop
-					? prevState === loadingStates.length - 1
-						? 0
-						: prevState + 1
+					? (prevState + 1) % loadingStates.length
 					: Math.min(prevState + 1, loadingStates.length - 1),
 			);
-		}, duration);
+		}, currentDuration);
 
 		return () => clearTimeout(timeout);
-	}, [currentState, loading, loop, loadingStates.length, duration]);
+	}, [currentState, loading, loop, loadingStates]);
+
 	return (
 		<AnimatePresence mode="wait">
 			{loading && (
