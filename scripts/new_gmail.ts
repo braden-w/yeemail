@@ -1,9 +1,5 @@
 import type { NewEmailParams } from "@/lib/db/schema";
 import { type gmail_v1, google } from "googleapis";
-import {
-	createEmail,
-	createMultipleEmails,
-} from "src/lib/api/emails/mutations";
 
 type GmailMessage = gmail_v1.Schema$Message;
 
@@ -132,44 +128,3 @@ export async function getGmailEmails({
 		return [];
 	}
 }
-
-async function insertAllEmails({
-	userToken,
-	maxResults,
-}: { userToken: string; maxResults: number }) {
-	try {
-		const emailData = await getGmailEmails({ token: userToken, maxResults });
-		const result = await createMultipleEmails(emailData);
-		console.log(`${result.emails.length} emails inserted successfully.`);
-	} catch (error) {
-		console.error(
-			"Error inserting emails:",
-			error instanceof Error ? error.message : String(error),
-		);
-	}
-}
-
-async function insertOneEmail(userToken: string) {
-	if (!userToken) {
-		console.error("Error: User token is required.");
-		return;
-	}
-	try {
-		const emailData = await getGmailEmails({ token: userToken, maxResults: 1 });
-		if (emailData.length > 0) {
-			const result = await createEmail(emailData[0]);
-			console.log("Email inserted successfully:", result.email);
-		} else {
-			console.log("No emails found to insert.");
-		}
-	} catch (error) {
-		console.error(
-			"Error inserting email:",
-			error instanceof Error ? error.message : String(error),
-		);
-	}
-}
-
-// Usage
-// insertAllEmails({ userToken: process.env.USER_KEY ?? "", maxResults: 2 });
-// insertOneEmail(process.env.USER_KEY ?? "");
