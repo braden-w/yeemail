@@ -1,6 +1,7 @@
 import { getUserAuth } from "@/lib/auth/utils";
 import { db } from "@/lib/db";
-import { type NewEmailParams, emails } from "@/lib/db/schema";
+import { type NewEmail, emails, suggestedEvents } from "@/lib/db/schema";
+import { extractEventsFromEmail } from "./extractEventsFromEmail";
 import { getGmailsAfterDate } from "./getGmailsAfterDate";
 
 export async function processGmailsAfterDate({
@@ -11,14 +12,21 @@ export async function processGmailsAfterDate({
 	token: string;
 	maxResults?: number;
 	date: Date;
-}): Promise<NewEmailParams[]> {
+}) {
 	const { session } = await getUserAuth();
 	const gmails = await getGmailsAfterDate({ token, maxResults, date });
-	const newEmails = gmails.map((email) => ({
+	const newEmails: NewEmail[] = gmails.map((email) => ({
 		...email,
 		userId: session?.user?.id!,
 		receivedAt: new Date(email.receivedAt),
 	}));
-	const e = await db.insert(emails).values(newEmails).returning();
-	return { gmails: e };
+	const insertedEmails = await db.insert(emails).values(newEmails).returning();
+	const extractedEvents = (
+		await Promise.all(newEmails.map(extractEventsFromEmail))
+	).flat();
+	const insertedEvents = await db
+		.insert(suggestedEvents)
+		.values(extractedEvents)
+		.returning();
+	return { emails: insertedEmails, events: insertedEvents };
 }
