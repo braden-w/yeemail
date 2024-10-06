@@ -58,7 +58,11 @@ const SavedEventForm = ({
 		// open issue: https://github.com/colinhacks/zod/issues/2663
 		// errors locally but not in production
 		resolver: zodResolver(insertSavedEventParams),
-		defaultValues: savedEvent ?? {
+		defaultValues: {
+			...savedEvent,
+			start: savedEvent?.start?.toISOString() ?? "",
+			end: savedEvent?.end?.toISOString(),
+		} ?? {
 			title: "",
 			description: "",
 			start: "",
@@ -83,6 +87,13 @@ const SavedEventForm = ({
 		router.refresh();
 		if (closeModal) closeModal();
 		toast.success(`Saved Event ${action}d!`);
+	};
+
+	const onError = (
+		action: "create" | "update" | "delete",
+		data?: { error?: string },
+	) => {
+		toast.error(`Error ${action}ing saved event: ${data?.error}`);
 	};
 
 	const { mutate: createSavedEvent, isLoading: isCreating } =
