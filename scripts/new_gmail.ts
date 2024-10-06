@@ -3,16 +3,59 @@ import { type gmail_v1, google } from "googleapis";
 
 type GmailMessage = gmail_v1.Schema$Message;
 
-const decodeBase64 = (data: string) => {
+export async function getGmailEmails({
+	token,
+	maxResults = 75,
+}: { token: string; maxResults?: number }): Promise<NewEmailParams[]> {
+	const oauth2Client = new google.auth.OAuth2();
+	oauth2Client.setCredentials({ access_token: token });
+
+	const gmail = google.gmail({ version: "v1", auth: oauth2Client });
+
+	try {
+		const response = await gmail.users.messages.list({
+			userId: "me",
+			maxResults,
+		});
+
+		const messages = response.data.messages;
+		if (!messages) {
+			console.log("No messages found.");
+			return [];
+		}
+
+		const emails = await Promise.all(
+			messages
+				.map((msg) => msg.id)
+				.filter((id) => id !== null && id !== undefined)
+				.map(async (id) => {
+					const emailResponse = await gmail.users.messages.get({
+						userId: "me",
+						id,
+					});
+					return formatEmailJSON(emailResponse.data);
+				}),
+		);
+		return emails;
+	} catch (error) {
+		console.error(
+			"Error:",
+			error instanceof Error ? error.message : String(error),
+		);
+		return [];
+	}
+}
+
+function decodeBase64(data: string) {
 	try {
 		return Buffer.from(data, "base64").toString("utf-8");
 	} catch (e) {
 		console.error("Error decoding base64 data: ", e);
 		return "";
 	}
-};
+}
 
-const formatEmailJSON = (email: GmailMessage): NewEmailParams => {
+function formatEmailJSON(email: GmailMessage): NewEmailParams {
 	const getHeader = (name: string) =>
 		email.payload?.headers?.find((header) => header.name === name)?.value ?? "";
 
@@ -82,47 +125,4 @@ const formatEmailJSON = (email: GmailMessage): NewEmailParams => {
 		receivedAt: new Date(Number(email.internalDate)).toISOString(),
 		links: JSON.stringify(links),
 	};
-};
-
-export async function getGmailEmails({
-	token,
-	maxResults = 75,
-}: { token: string; maxResults?: number }): Promise<NewEmailParams[]> {
-	const oauth2Client = new google.auth.OAuth2();
-	oauth2Client.setCredentials({ access_token: token });
-
-	const gmail = google.gmail({ version: "v1", auth: oauth2Client });
-
-	try {
-		const response = await gmail.users.messages.list({
-			userId: "me",
-			maxResults,
-		});
-
-		const messages = response.data.messages;
-		if (!messages) {
-			console.log("No messages found.");
-			return [];
-		}
-
-		const emails = await Promise.all(
-			messages
-				.map((msg) => msg.id)
-				.filter((id) => id !== null && id !== undefined)
-				.map(async (id) => {
-					const emailResponse = await gmail.users.messages.get({
-						userId: "me",
-						id,
-					});
-					return formatEmailJSON(emailResponse.data);
-				}),
-		);
-		return emails;
-	} catch (error) {
-		console.error(
-			"Error:",
-			error instanceof Error ? error.message : String(error),
-		);
-		return [];
-	}
 }
