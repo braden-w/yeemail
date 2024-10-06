@@ -1,5 +1,13 @@
 import type { SidebarLink } from "@/components/SidebarItems";
-import { Bookmark, Calendar, Cog, HomeIcon, Mail, User } from "lucide-react";
+import {
+	Bookmark,
+	Calendar,
+	Cog,
+	HomeIcon,
+	Mail,
+	Rocket,
+	User,
+} from "lucide-react";
 
 type AdditionalLinks = {
 	title: string;
@@ -16,6 +24,11 @@ export const additionalLinks: AdditionalLinks[] = [
 	{
 		title: "Emails",
 		links: [
+			{
+				href: "/launch",
+				title: "Launch",
+				icon: Rocket,
+			},
 			{
 				href: "/emails",
 				title: "Emails",
