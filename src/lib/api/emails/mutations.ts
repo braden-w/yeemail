@@ -10,6 +10,7 @@ import {
 	updateEmailSchema,
 } from "@/lib/db/schema/emails";
 import { and, eq } from "drizzle-orm";
+import { z } from "zod";
 
 export const createEmail = async (email: NewEmailParams) => {
 	const { session } = await getUserAuth();
@@ -27,27 +28,23 @@ export const createEmail = async (email: NewEmailParams) => {
 	}
 };
 
-export const createMultipleEmails = async (all_emails: NewEmailParams[]) => {
-	// const { session } = await getUserAuth();
-	const newEmails = [];
-	for (const email of all_emails) {
-		console.log(email);
-		const newEmail = insertEmailSchema.parse({
-			...email,
-			userId: '2cfr32gdmbpup75',
-		});
-		newEmails.push(newEmail);
-	}
+export const createMultipleEmails = async (
+	unparsedEmails: NewEmailParams[],
+) => {
+	const { session } = await getUserAuth();
 	try {
-		const [e] = await db.insert(emails).values(newEmails).returning();
-		return { count: e.length };
+		const parsedEmails = z.array(insertEmailSchema).parse(unparsedEmails);
+		const newEmails = parsedEmails.map((email) =>
+			insertEmailSchema.parse({ ...email, userId: session?.user?.id }),
+		);
+		const e = await db.insert(emails).values(newEmails).returning();
+		return { emails: e };
 	} catch (err) {
 		const message = (err as Error).message ?? "Error, please try again";
 		console.error(message);
 		throw { error: message };
 	}
-}
-
+};
 
 export const updateEmail = async (id: EmailId, email: UpdateEmailParams) => {
 	const { session } = await getUserAuth();
