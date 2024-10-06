@@ -20,9 +20,9 @@ import { toast } from "sonner";
 const loadingStates = [
 	{ text: "Authenticating with Gmail", duration: 2000 },
 	{ text: "Fetching recent emails", duration: 5000 },
-	{ text: "Processing email content", duration: 7000 },
-	{ text: "Extracting relevant information", duration: 9000 },
-	{ text: "Preparing data for display", duration: 4000 },
+	{ text: "Processing email content", duration: 6000 },
+	{ text: "Extracting relevant information", duration: 8000 },
+	{ text: "Preparing data for display", duration: 3000 },
 ];
 
 export default function LandingPage() {
