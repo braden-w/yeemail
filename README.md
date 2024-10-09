@@ -9,6 +9,8 @@ YEEmail is an AI-powered email assistant that automatically extracts event infor
 
 No more manual data entry, no more missed opportunities. YEEmail ensures you're always in the loop, saving you hours each week and helping you stay on top of your busy student life.
 
+https://github.com/user-attachments/assets/48f495cc-5231-441e-bcb9-11e741618956
+
 ## Getting Started
 
 First, run the development server:
